@@ -13,8 +13,8 @@ namespace TrafficCameraEventGenerator.Configuration
         {
             Guard.NotNullOrEmpty(startTime, nameof(startTime));
             Guard.NotNullOrEmpty(endTime, nameof(startTime));
-            Guard.For<ArgumentException>(() => startTime.Contains(":"), "StartTime should be of format hh:mm");
-            Guard.For<ArgumentException>(() => endTime.Contains(":"), "EndTime should be of format hh:mm");
+            Guard.For<ArgumentException>(() => !startTime.Contains(":"), "StartTime should be of format hh:mm");
+            Guard.For<ArgumentException>(() => !endTime.Contains(":"), "EndTime should be of format hh:mm");
             _startTime = new TimeSpan(int.Parse(startTime.Split(':')[0]), int.Parse(startTime.Split(':')[1]), 0);
             _endTime = new TimeSpan(int.Parse(endTime.Split(':')[0]), int.Parse(endTime.Split(':')[1]), 0);
             _onlyWeekdays = onlyWeekdays;

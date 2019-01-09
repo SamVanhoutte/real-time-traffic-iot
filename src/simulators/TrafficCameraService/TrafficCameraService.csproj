@@ -13,4 +13,8 @@
     <Content Include="DOCKERFILE" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TrafficCameraEventGenerator\TrafficCameraEventGenerator.csproj" />
+  </ItemGroup>
+
 </Project>
