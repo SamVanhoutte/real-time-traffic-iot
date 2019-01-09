@@ -20,7 +20,7 @@ namespace TrafficCameraEventGenerator.Cars
             // the distance of the cameras and the multiplier
             var metersPerHour = ExpectedSpeed * 1000;
             var metersPerMinute = metersPerHour / 60;
-            double minutesToDrive = (double)metersToDrive / (double)metersPerMinute;
+            double minutesToDrive = metersToDrive / (double)metersPerMinute;
             var millisecondsToDrive = ((minutesToDrive) * 60 * 1000) / simulationMultiplier;
             var result = TimeSpan.FromMilliseconds((int)(millisecondsToDrive)); // in milliseconds
             return result;
@@ -30,7 +30,7 @@ namespace TrafficCameraEventGenerator.Cars
         private static List<string> Colors {
             get
             {
-                var colors = new List<string> { };
+                var colors = new List<string>();
                 foreach (var color in Enum.GetValues(typeof(ConsoleColor)))
                 {
                     colors.Add(color.ToString());

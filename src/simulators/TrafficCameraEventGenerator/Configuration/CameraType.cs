@@ -4,8 +4,9 @@ using System.Text;
 
 namespace TrafficCameraEventGenerator.Configuration
 {
-    public class TimeSimulationSettings : ITimeSimulationSettings
+    public enum CameraType
     {
-        public int TimeSimulationAccelerator { get; set; } = 1;
+        Camera1 = 1,
+        Camera2 = 2
     }
 }

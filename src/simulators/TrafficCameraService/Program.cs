@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TrafficCameraEventGenerator;
 using TrafficCameraEventGenerator.Configuration;
+using TrafficCameraEventGenerator.Configuration.Segment;
+using TrafficCameraEventGenerator.Configuration.Settings;
+using TrafficCameraEventGenerator.Configuration.Simulation;
+using TrafficCameraEventGenerator.Configuration.Transmission;
 using TrafficCameraEventGenerator.Transmitters;
 
 namespace TrafficCameraService
@@ -20,17 +26,25 @@ namespace TrafficCameraService
                 cancellationTokenSource.Cancel();
             };
 
-            var generator = new EventGenerator<ConsoleTransmitter>(
-                new TrafficSegmentIdentification
-                {
-                    InitialCamera = new CameraTransmitterConfiguration(""),
-                    LastCamera = new CameraTransmitterConfiguration(""),
-                    SegmentId = "demo-01"
-                },
-                TrafficSegmentConfiguration.Busy);
+
+
+            //setup our DI
+            var serviceProvider = new ServiceCollection()
+                .AddLogging()
+                .AddSingleton<IConfigurationReader, EnvironmentConfigurationReader>()
+                .AddSingleton<ICameraTransmitterConfigurator, ConsoleTransmitterConfigurator>()
+                .AddSingleton<ITrafficSegmentConfigurator, BusySegmentConsoleConfigurator>()
+                .AddSingleton<ITimeSimulationSettings, TimeSimulationSettings>()
+                .AddSingleton<IEventGenerator, EventGenerator>()
+                .BuildServiceProvider();
+
+
+            //do the actual work here
+            var generator = serviceProvider.GetService<IEventGenerator>();
             generator.Run(cancellationTokenSource.Token).Wait(cancellationTokenSource.Token);
             exitEvent.WaitOne();
             Console.WriteLine("Process cancelled");
+            Console.ReadLine();
         }
     }
 }

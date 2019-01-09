@@ -1,43 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
 using Savanh.Extensions.Randoms;
 using TrafficCameraEventGenerator.Cars;
 using TrafficCameraEventGenerator.Configuration;
+using TrafficCameraEventGenerator.Configuration.Settings;
+using TrafficCameraEventGenerator.Configuration.Simulation;
 using TrafficCameraEventGenerator.Transmitters;
 
 namespace TrafficCameraEventGenerator
 {
-    public class EventGenerator<T> where T : IEventTransmitter, new()
+    public class EventGenerator : IEventGenerator
     {
         private readonly ITimeSimulationSettings _simulationSettings;
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private readonly ITrafficSegmentIdentification _segmentIdentification;
-        private readonly ITrafficSegmentConfiguration _configuration;
-        private readonly T _startCameraEventTransmitter;
-        private readonly T _endCameraEventTransmitter;
+        private readonly ITrafficSegmentConfigurator _configurator;
+        private readonly IConfigurationReader _configurationReader;
+        private readonly ICameraTransmitterConfigurator _transmitterConfigurator;
 
-        public EventGenerator(ITrafficSegmentIdentification segmentIdentification, ITrafficSegmentConfiguration configuration, ITimeSimulationSettings simulationSettings = null)
+        public EventGenerator(ITrafficSegmentConfigurator segmentConfiguration, IConfigurationReader configurationReader, ICameraTransmitterConfigurator transmitterConfigurator, ITimeSimulationSettings simulationSettings = null)
         {
+            _configurator = segmentConfiguration;
+            _configurationReader = configurationReader;
+            _transmitterConfigurator = transmitterConfigurator;
             _simulationSettings = simulationSettings ?? new TimeSimulationSettings();
-            _segmentIdentification = segmentIdentification;
-            _configuration = configuration;
-            _startCameraEventTransmitter = Activator.CreateInstance<T>();
-            _endCameraEventTransmitter = Activator.CreateInstance<T>();
         }
 
         public async Task Run(CancellationToken cancellationToken)
         {
+            var segmentConfiguration = _configurator.GetConfiguration();
+
+
+            var startCameraEventTransmitter = _transmitterConfigurator.CreateTransmitter(CameraType.Camera1);
+            var endCameraEventTransmitter = _transmitterConfigurator.CreateTransmitter(CameraType.Camera2);
             var random = new Random();
             // Initialize transmitters
-            await Task.WhenAll(
-                _startCameraEventTransmitter.Initalize(_segmentIdentification.InitialCamera),
-                _endCameraEventTransmitter.Initalize(_segmentIdentification.InitialCamera)
-            );
-            Parallel.For(1, _configuration.AverageCarsPerMinute + 1, async (index) =>
+
+            Parallel.For(1, segmentConfiguration.AverageCarsPerMinute + 1, async index =>
             {
                 try
                 {
@@ -47,39 +47,39 @@ namespace TrafficCameraEventGenerator
                     await Task.Delay(TimeSpan.FromMilliseconds((random.Next(60)) * 1000), cancellationToken);
                     while (!cancellationToken.IsCancellationRequested) // Keep running until task is cancelled
                     {
-                        var numberOfCarsSpeeding = ((double)_configuration.AverageCarsPerMinute * ((double)_configuration.SpeedingPercentage / 100));
+                        var numberOfCarsSpeeding = (segmentConfiguration.AverageCarsPerMinute * ((double)segmentConfiguration.SpeedingPercentage / 100));
                         var isSpeeding = (index <= numberOfCarsSpeeding);
                         var car = SimulatedCar.Randomize
                             (
                                 random,
                                 isSpeeding,
-                                _configuration.MinSpeed,
-                                _configuration.SpeedLimit,
-                                _configuration.MaxSpeed
+                                segmentConfiguration.MinSpeed,
+                                segmentConfiguration.SpeedLimit,
+                                segmentConfiguration.MaxSpeed
                             );
                         try
                         {
                             //regenerate new license plate for every run
-                            var carTimespan = car.CalculateTime(_configuration.CameraDistance, _simulationSettings.TimeSimulationAccelerator);
-                            await _startCameraEventTransmitter.Transmit(
+                            var carTimespan = car.CalculateTime(segmentConfiguration.CameraDistance, _simulationSettings.TimeSimulationAccelerator);
+                            await startCameraEventTransmitter.Transmit(
                                 new CameraEvent
                                 {
-                                    TrajectId = _segmentIdentification.SegmentId,
-                                    CameraId = "cam-01",
+                                    TrajectId = segmentConfiguration.SegmentId,
+                                    CameraId = CameraType.Camera1.ToString(),
                                     EventTime = SimulatedClock.GetTimestamp(),
                                     Car = car,
-                                    Lane = LaneCalculator.CalculateLane(_configuration, car)
+                                    Lane = LaneCalculator.CalculateLane(segmentConfiguration, car)
                                 }, cancellationToken);
                             _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 01");
                             await Task.Delay(carTimespan, cancellationToken);
-                            await _startCameraEventTransmitter.Transmit(
+                            await endCameraEventTransmitter.Transmit(
                                 new CameraEvent
                                 {
-                                    TrajectId = _segmentIdentification.SegmentId,
-                                    CameraId = "cam-02",
+                                    TrajectId = segmentConfiguration.SegmentId,
+                                    CameraId = CameraType.Camera2.ToString(),
                                     EventTime = SimulatedClock.GetTimestamp(),
                                     Car = car,
-                                    Lane = LaneCalculator.CalculateLane(_configuration, car)
+                                    Lane = LaneCalculator.CalculateLane(segmentConfiguration, car)
                                 }, cancellationToken);
                             _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 02");
                             // Wait to complete the simulatedMinute

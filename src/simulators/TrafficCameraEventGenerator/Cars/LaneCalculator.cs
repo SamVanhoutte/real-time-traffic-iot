@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Savanh.Extensions.Randoms;
-using TrafficCameraEventGenerator.Configuration;
+using TrafficCameraEventGenerator.Configuration.Segment;
 
 namespace TrafficCameraEventGenerator.Cars
 {
     public class LaneCalculator
     {
-        public static int CalculateLane(ITrafficSegmentConfiguration segmentConfiguration, SimulatedCar car)
+        public static int CalculateLane(TrafficSegmentConfiguration segmentConfiguration, SimulatedCar car)
         {
             if (segmentConfiguration.NumberOfLanes > 2)
             {

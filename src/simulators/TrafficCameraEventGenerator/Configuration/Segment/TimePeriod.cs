@@ -1,7 +1,7 @@
 ﻿using System;
 using GuardNet;
 
-namespace TrafficCameraEventGenerator.Configuration
+namespace TrafficCameraEventGenerator.Configuration.Segment
 {
     public class TimePeriod
     {
