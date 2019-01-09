@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2050
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Simulator", "Simulator", "{8BCC216B-42C9-4BDA-83A3-9F3E2E6F6B62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrafficCameraService", "simulators\TrafficCameraService\TrafficCameraService.csproj", "{BCCE9F76-ACE8-42AF-8D80-1424B0531470}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BCCE9F76-ACE8-42AF-8D80-1424B0531470}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCCE9F76-ACE8-42AF-8D80-1424B0531470}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCCE9F76-ACE8-42AF-8D80-1424B0531470}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCCE9F76-ACE8-42AF-8D80-1424B0531470}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BCCE9F76-ACE8-42AF-8D80-1424B0531470} = {8BCC216B-42C9-4BDA-83A3-9F3E2E6F6B62}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20BD8240-683A-4B9F-8767-EE912E0A5EA4}
+	EndGlobalSection
+EndGlobal
