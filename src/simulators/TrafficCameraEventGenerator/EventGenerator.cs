@@ -103,7 +103,7 @@ namespace TrafficCameraEventGenerator
                 { }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Error happened in the simulator");
+                    _logger.Error(ex, "Error happened in the simulator: " + ex.ToString());
                 }
             });
         }

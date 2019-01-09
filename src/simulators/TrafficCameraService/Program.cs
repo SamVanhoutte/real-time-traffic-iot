@@ -31,9 +31,9 @@ namespace TrafficCameraService
             //setup our DI
             var serviceProvider = new ServiceCollection()
                 .AddLogging()
-                .AddSingleton<IConfigurationReader, EnvironmentConfigurationReader>()
-                .AddSingleton<ICameraTransmitterConfigurator, ConsoleTransmitterConfigurator>()
-                .AddSingleton<ITrafficSegmentConfigurator, BusySegmentConsoleConfigurator>()
+                .AddSingleton<IConfigurationReader, HardcodedConfigurationReader>()
+                .AddSingleton<ICameraTransmitterConfigurator, IoTHubTransmitterConfigurator>()
+                .AddSingleton<ITrafficSegmentConfigurator, TrafficSegmentConfigurator>()
                 .AddSingleton<ITimeSimulationSettings, TimeSimulationSettings>()
                 .AddSingleton<IEventGenerator, EventGenerator>()
                 .BuildServiceProvider();
