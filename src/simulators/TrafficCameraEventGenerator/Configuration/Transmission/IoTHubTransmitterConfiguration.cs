@@ -6,19 +6,18 @@ using TrafficCameraEventGenerator.Transmitters;
 
 namespace TrafficCameraEventGenerator.Configuration.Transmission
 {
-    //public class IoTHubTransmitterConfigurator : ICameraTransmitterConfigurator
-    //{
-    //    private readonly IConfigurationReader _configurationReader;
+    public class IoTHubTransmitterConfigurator : ICameraTransmitterConfigurator
+    {
+        private readonly IConfigurationReader _configurationReader;
 
-    //    public IoTHubTransmitterConfigurator(IConfigurationReader configurationReader)
-    //    {
-    //        _configurationReader = configurationReader;
-    //    }
+        public IoTHubTransmitterConfigurator(IConfigurationReader configurationReader)
+        {
+            _configurationReader = configurationReader;
+        }
 
-
-    //    public IEventTransmitter CreateTransmitter(IConfigurationReader configurationReader)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
+        public IEventTransmitter CreateTransmitter(CameraType cameraId)
+        {
+            return new IoTHubTransmitter(_configurationReader.GetConfigValue<string>($"IOTHUB_{cameraId.ToString().ToUpper()}_CONNECTION", true));
+        }
+    }
 }

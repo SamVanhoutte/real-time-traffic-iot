@@ -7,12 +7,12 @@ using TrafficCameraEventGenerator.Configuration.Settings;
 
 namespace TrafficCameraEventGenerator.Configuration
 {
-    public class TrafficSegmentIoTHubConfigurator : ITrafficSegmentConfigurator
+    public class TrafficSegmentConfigurator : ITrafficSegmentConfigurator
     {
         private readonly IConfigurationReader _configurationReader;
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public TrafficSegmentIoTHubConfigurator(IConfigurationReader configurationReader)
+        public TrafficSegmentConfigurator(IConfigurationReader configurationReader)
         {
             _configurationReader = configurationReader;
         }
