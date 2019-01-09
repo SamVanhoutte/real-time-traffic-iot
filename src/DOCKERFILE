@@ -1,0 +1,12 @@
+﻿FROM microsoft/dotnet:2.1-sdk
+WORKDIR /app
+
+# copy csproj and restore as distinct layers
+COPY . ./
+RUN dotnet restore TrafficDemo.sln
+
+# copy and build everything else
+COPY . ./
+RUN dotnet publish -c Release -o out simulators/TrafficCameraService/TrafficCameraService.csproj
+RUN echo $(ls -1 /out)
+ENTRYPOINT ["dotnet", "simulators/TrafficCameraService/out/TrafficCameraService.dll"]
