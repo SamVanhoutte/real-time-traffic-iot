@@ -22,6 +22,7 @@ namespace TrafficCameraEventGenerator.Configuration
         {
             return new TrafficSegmentConfiguration
             {
+                SegmentId = _configurationReader.GetConfigValue<string>("SEGMENT_ID", true),
                 NumberOfLanes = _configurationReader.GetConfigValue("SEGMENT_LANE_COUNT", false, 3),
                 AverageCarsPerMinute = _configurationReader.GetConfigValue("SEGMENT_AVG_CARS_PER_MINUTE", false, 60),
                 SpeedLimit = _configurationReader.GetConfigValue("SEGMENT_SPEED_LIMIT", false, 120),
