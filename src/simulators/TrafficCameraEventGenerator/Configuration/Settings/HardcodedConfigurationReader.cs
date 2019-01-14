@@ -20,7 +20,8 @@ namespace TrafficCameraEventGenerator.Configuration.Settings
             { "SEGMENT_SPEEDING_PERCENTAGE", "3" },
             { "SEGMENT_MIN_SPEED", "9" },
             { "SEGMENT_MAX_SPEED", "188" },
-            { "SEGMENT_ID", "9" },
+            { "SEGMENT_ID", "dev01" },
+            { "STORAGE_CONNECTION_STRING", "DefaultEndpointsProtocol=https;AccountName=savanhtraffic;AccountKey=wR9yOtMz215qD4uZdYTI3JnOWCzBpE1UrR2jeGgXUC8xdgBBl42GNCpTBYXD/AymMwZkcB+XO6WOJrQ5gS1Bng==;EndpointSuffix=core.windows.net"}
         };
 
         public T GetConfigValue<T>(string variableName, bool required, T defaultValue = default(T))

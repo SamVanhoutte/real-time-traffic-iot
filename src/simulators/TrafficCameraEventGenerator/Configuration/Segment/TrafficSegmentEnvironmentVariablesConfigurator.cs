@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using TrafficCameraEventGenerator.Configuration.Segment;
+using System.Threading.Tasks;
 using NLog;
 using TrafficCameraEventGenerator.Configuration.Settings;
 
-namespace TrafficCameraEventGenerator.Configuration
+namespace TrafficCameraEventGenerator.Configuration.Segment
 {
     public class TrafficSegmentConfigurator : ITrafficSegmentConfigurator
     {
@@ -18,9 +17,9 @@ namespace TrafficCameraEventGenerator.Configuration
         }
 
 
-        public TrafficSegmentConfiguration GetConfiguration()
+        public Task<TrafficSegmentConfiguration> GetConfiguration()
         {
-            return new TrafficSegmentConfiguration
+            return Task.FromResult(new TrafficSegmentConfiguration
             {
                 SegmentId = _configurationReader.GetConfigValue<string>("SEGMENT_ID", true),
                 NumberOfLanes = _configurationReader.GetConfigValue("SEGMENT_LANE_COUNT", false, 3),
@@ -31,7 +30,7 @@ namespace TrafficCameraEventGenerator.Configuration
                 SpeedingPercentage = _configurationReader.GetConfigValue("SEGMENT_SPEEDING_PERCENTAGE", false, 2),
                 MinSpeed = _configurationReader.GetConfigValue("SEGMENT_MIN_SPEED", false, 10),
                 MaxSpeed = _configurationReader.GetConfigValue("SEGMENT_MAX_SPEED", false, 180)
-            };
+            });
         }
 
         private IEnumerable<TimePeriod> GetRushHours()
@@ -57,7 +56,7 @@ namespace TrafficCameraEventGenerator.Configuration
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                 }
             }

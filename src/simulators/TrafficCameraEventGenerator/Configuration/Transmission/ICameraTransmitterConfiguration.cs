@@ -1,7 +1,6 @@
-﻿using TrafficCameraEventGenerator.Configuration.Settings;
-using TrafficCameraEventGenerator.Transmitters;
+﻿using TrafficCameraEventGenerator.Transmitters;
 
-namespace TrafficCameraEventGenerator.Configuration
+namespace TrafficCameraEventGenerator.Configuration.Transmission
 {
     public interface ICameraTransmitterConfigurator
     {
