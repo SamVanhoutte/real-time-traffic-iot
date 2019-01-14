@@ -5,6 +5,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
 {
     public class TimePeriod
     {
+
         private readonly TimeSpan _startTime;
         private readonly TimeSpan _endTime;
         private readonly bool _onlyWeekdays;

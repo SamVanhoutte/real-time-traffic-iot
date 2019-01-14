@@ -5,8 +5,10 @@ using NLog;
 using Savanh.Extensions.Randoms;
 using TrafficCameraEventGenerator.Cars;
 using TrafficCameraEventGenerator.Configuration;
+using TrafficCameraEventGenerator.Configuration.Segment;
 using TrafficCameraEventGenerator.Configuration.Settings;
 using TrafficCameraEventGenerator.Configuration.Simulation;
+using TrafficCameraEventGenerator.Configuration.Transmission;
 using TrafficCameraEventGenerator.Transmitters;
 
 namespace TrafficCameraEventGenerator
@@ -29,11 +31,11 @@ namespace TrafficCameraEventGenerator
 
         public async Task Run(CancellationToken cancellationToken)
         {
-            var segmentConfiguration = _configurator.GetConfiguration();
+            var segmentConfiguration = await _configurator.GetConfiguration();
 
 
-            var startCameraEventTransmitter = _transmitterConfigurator.CreateTransmitter(CameraType.Camera1);
-            var endCameraEventTransmitter = _transmitterConfigurator.CreateTransmitter(CameraType.Camera2);
+            var startCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera1);
+            var endCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera2);
             var random = new Random();
             // Initialize transmitters
 

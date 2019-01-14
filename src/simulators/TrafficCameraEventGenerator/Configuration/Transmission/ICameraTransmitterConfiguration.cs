@@ -1,10 +1,10 @@
-﻿using TrafficCameraEventGenerator.Configuration.Settings;
+﻿using System.Threading.Tasks;
 using TrafficCameraEventGenerator.Transmitters;
 
-namespace TrafficCameraEventGenerator.Configuration
+namespace TrafficCameraEventGenerator.Configuration.Transmission
 {
     public interface ICameraTransmitterConfigurator
     {
-        IEventTransmitter CreateTransmitter(CameraType cameraId);
+        Task<IEventTransmitter> CreateTransmitter(string segmentId, CameraType cameraId);
     }
 }

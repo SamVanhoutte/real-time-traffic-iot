@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TrafficCameraEventGenerator.Configuration.Simulation;
-
-namespace TrafficCameraEventGenerator.Configuration
+﻿namespace TrafficCameraEventGenerator.Configuration.Simulation
 {
     public class TimeSimulationSettings : ITimeSimulationSettings
     {

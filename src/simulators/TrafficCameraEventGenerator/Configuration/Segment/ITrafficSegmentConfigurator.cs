@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Savanh.Extensions.Randoms;
-using TrafficCameraEventGenerator.Configuration.Segment;
-using TrafficCameraEventGenerator.Configuration.Settings;
+﻿using System.Threading.Tasks;
 
-namespace TrafficCameraEventGenerator.Configuration
+namespace TrafficCameraEventGenerator.Configuration.Segment
 {
     public interface ITrafficSegmentConfigurator
     {
-        TrafficSegmentConfiguration GetConfiguration();
+        Task<TrafficSegmentConfiguration> GetConfiguration();
     }
 
 }
