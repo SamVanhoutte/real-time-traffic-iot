@@ -34,8 +34,8 @@ namespace TrafficCameraEventGenerator
             var segmentConfiguration = await _configurator.GetConfiguration();
 
 
-            var startCameraEventTransmitter = _transmitterConfigurator.CreateTransmitter(CameraType.Camera1);
-            var endCameraEventTransmitter = _transmitterConfigurator.CreateTransmitter(CameraType.Camera2);
+            var startCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera1);
+            var endCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera2);
             var random = new Random();
             // Initialize transmitters
 

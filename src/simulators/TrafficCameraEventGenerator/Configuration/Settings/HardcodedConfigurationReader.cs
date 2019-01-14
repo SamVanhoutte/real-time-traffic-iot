@@ -11,8 +11,7 @@ namespace TrafficCameraEventGenerator.Configuration.Settings
 
         private readonly IDictionary<string, string> _settings = new Dictionary<string, string>
         {
-            { "IOTHUB_CAMERA1_CONNECTION", "HostName=savanh-traffic-camera.azure-devices.net;DeviceId=dev-camera-01;SharedAccessKey=nSWtl/1yw/cXebzMAsLalHyzFoBx6nBXCIMe5AzzgcY=" },
-            { "IOTHUB_CAMERA2_CONNECTION", "HostName=savanh-traffic-camera.azure-devices.net;DeviceId=dev-camera-02;SharedAccessKey=ZhMFyC8rdAJuIoVegye0OUFfPZep909qBq+hv4Gkkrg=" },
+            { "IOTHUB_OWNER_CONNECTIONSTRING", "HostName=savanh-traffic-camera.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=T/Og0ff1pUeZeN13+9wktJZ+LPxzXliCLp9KeL0oK8U=" },
             { "SEGMENT_LANE_COUNT", "4" },
             { "SEGMENT_AVG_CARS_PER_MINUTE", "70" },
             { "SEGMENT_SPEED_LIMIT", "130" },
