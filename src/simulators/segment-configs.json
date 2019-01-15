@@ -1,0 +1,44 @@
+[
+    {
+        "segmentId": "01",
+        "description": "Ghent E17",
+        "lat": 51.037,
+        "lon": 3.76,
+        "numberOfLanes": 3,
+        "speedLimit": 90,
+        "rushHours": "07:00-08:00,17:00-18:00,false",
+        "maxSpeed": 166,
+        "minSpeed": 2,
+        "averageCarsPerMinute": 85,
+        "speedingPercentage": 5,
+        "cameraDistance": 2000
+    },
+    {
+        "segmentId": "02",
+        "description": "Brussels E40",
+        "lat": 50.868,
+        "lon": 4.569,
+        "numberOfLanes": 4,
+        "speedLimit": 120,
+        "rushHours": "06:30-09:15,16:00-18:25,true",
+        "maxSpeed": 188,
+        "minSpeed": 8,
+        "averageCarsPerMinute": 120,
+        "speedingPercentage": 3,
+        "cameraDistance": 5000
+    },
+    {
+        "segmentId": "03",
+        "description": "Aalst E40",
+        "lat": 50.945,
+        "lon": 3.896,
+        "numberOfLanes": 3,
+        "speedLimit": 110,
+        "rushHours": "06:40-09:00,16:40-18:50,false",
+        "maxSpeed": 176,
+        "minSpeed": 10,
+        "averageCarsPerMinute": 130,
+        "speedingPercentage": 3,
+        "cameraDistance": 8000
+    }
+]

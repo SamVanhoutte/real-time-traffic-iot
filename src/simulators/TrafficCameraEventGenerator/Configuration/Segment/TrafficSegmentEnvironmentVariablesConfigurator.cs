@@ -6,12 +6,12 @@ using TrafficCameraEventGenerator.Configuration.Settings;
 
 namespace TrafficCameraEventGenerator.Configuration.Segment
 {
-    public class TrafficSegmentConfigurator : ITrafficSegmentConfigurator
+    public class TrafficSegmentSettingsConfigurator : ITrafficSegmentConfigurator
     {
         private readonly IConfigurationReader _configurationReader;
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public TrafficSegmentConfigurator(IConfigurationReader configurationReader)
+        public TrafficSegmentSettingsConfigurator(IConfigurationReader configurationReader)
         {
             _configurationReader = configurationReader;
         }

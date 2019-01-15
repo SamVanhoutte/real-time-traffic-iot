@@ -32,6 +32,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             var configText = await configBlob.DownloadTextAsync();
             var segmentConfigs = JsonConvert.DeserializeObject<List<TrafficSegmentConfiguration>>(configText);
 
+            
             return segmentConfigs.FirstOrDefault(c =>
                 c.SegmentId.Equals(segmentId, StringComparison.InvariantCultureIgnoreCase));
         }
