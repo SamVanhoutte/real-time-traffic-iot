@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NLog;
@@ -23,14 +24,16 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
         public async Task<TrafficSegmentConfiguration> GetConfiguration()
         {
             var storageAccountConnection = _configurationReader.GetConfigValue<string>("STORAGE_CONNECTION_STRING", true);
-            var blobSegmentReference = _configurationReader.GetConfigValue<string>("SEGMENT_ID", true);
-            blobSegmentReference = $"segment-{blobSegmentReference}.json";
+            var segmentId = _configurationReader.GetConfigValue<string>("SEGMENT_ID", true);
 
             var storageAccount = CloudStorageAccount.Parse(storageAccountConnection);
             var blobClient = storageAccount.CreateCloudBlobClient();
-            var configBlob = blobClient.GetContainerReference("traffic-config").GetBlockBlobReference(blobSegmentReference);
+            var configBlob = blobClient.GetContainerReference("traffic-config").GetBlockBlobReference("segment-configs.json");
             var configText = await configBlob.DownloadTextAsync();
-            return JsonConvert.DeserializeObject<TrafficSegmentConfiguration>(configText);
+            var segmentConfigs = JsonConvert.DeserializeObject<List<TrafficSegmentConfiguration>>(configText);
+
+            return segmentConfigs.FirstOrDefault(c =>
+                c.SegmentId.Equals(segmentId, StringComparison.InvariantCultureIgnoreCase));
         }
 
     }

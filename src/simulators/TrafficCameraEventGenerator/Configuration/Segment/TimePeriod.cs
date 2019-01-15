@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using GuardNet;
 
 namespace TrafficCameraEventGenerator.Configuration.Segment
 {
     public class TimePeriod
     {
-
+        public bool OnlyWeekdays { get; set; }
         private readonly TimeSpan _startTime;
         private readonly TimeSpan _endTime;
-        private readonly bool _onlyWeekdays;
 
         public TimePeriod(string startTime, string endTime, bool onlyWeekdays)
         {
@@ -18,7 +18,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             Guard.For<ArgumentException>(() => !endTime.Contains(":"), "EndTime should be of format hh:mm");
             _startTime = new TimeSpan(int.Parse(startTime.Split(':')[0]), int.Parse(startTime.Split(':')[1]), 0);
             _endTime = new TimeSpan(int.Parse(endTime.Split(':')[0]), int.Parse(endTime.Split(':')[1]), 0);
-            _onlyWeekdays = onlyWeekdays;
+            OnlyWeekdays = onlyWeekdays;
         }
 
         public bool Includes(DateTime timeToValidate)
@@ -30,6 +30,32 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
                 return _startTime <= timeOfDay && timeOfDay <= _endTime;
             // start is after end, so do the inverse comparison
             return !(_endTime < timeOfDay && timeOfDay < _startTime);
+        }
+
+        public static IEnumerable<TimePeriod> ParseList(string timePeriodConfiguration)
+        {
+            var periods = new List<TimePeriod> { };
+            if (timePeriodConfiguration == null) return periods;
+            bool onlyOnWeekdays = true;
+            foreach (var timePeriod in timePeriodConfiguration.Split(','))
+            {
+                if (timePeriod.Contains("-"))
+                {
+                    periods.Add(new TimePeriod(timePeriod.Split('-')[0], timePeriod.Split('-')[1], true));
+                }
+                else
+                {
+                    // check for boolean value to indicate weekdays
+                    bool.TryParse(timePeriod, out onlyOnWeekdays);
+                }
+            }
+
+            foreach (var timePeriod in periods)
+            {
+                timePeriod.OnlyWeekdays = onlyOnWeekdays;
+            }
+
+            return periods;
         }
     }
 }
