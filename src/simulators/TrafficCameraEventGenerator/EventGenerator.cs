@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
@@ -51,13 +52,15 @@ namespace TrafficCameraEventGenerator
                     {
                         var numberOfCarsSpeeding = (segmentConfiguration.AverageCarsPerMinute * ((double)segmentConfiguration.SpeedingPercentage / 100));
                         var isSpeeding = (index <= numberOfCarsSpeeding);
+                        var isRushHour = segmentConfiguration.RushHours.Any(timePeriod => timePeriod.Includes(SimulatedClock.GetTimestamp()));
                         var car = SimulatedCar.Randomize
                             (
                                 random,
                                 isSpeeding,
                                 segmentConfiguration.MinSpeed,
                                 segmentConfiguration.SpeedLimit,
-                                segmentConfiguration.MaxSpeed
+                                segmentConfiguration.MaxSpeed,
+                                isRushHour
                             );
                         try
                         {

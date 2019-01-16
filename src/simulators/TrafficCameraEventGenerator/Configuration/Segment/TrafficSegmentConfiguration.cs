@@ -40,18 +40,9 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             {
                 return null;
             }
-            var rushHours = new List<TimePeriod>();
-            var rushHourConfiguration = reader.Value.ToString();
 
-            foreach (var rushHourPeriod in rushHourConfiguration.Split(','))
-            {
-                if (rushHourPeriod.Contains("-"))
-                {
-                    rushHours.Add(new TimePeriod(rushHourPeriod.Split('-')[0], rushHourPeriod.Split('-')[1], true));
-                }
-            }
+            return TimePeriod.ParseList(reader.Value.ToString());
 
-            return rushHours;
         }
 
         public override bool CanWrite => false;
