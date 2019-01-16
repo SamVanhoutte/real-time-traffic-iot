@@ -6,12 +6,12 @@ using TrafficCameraEventGenerator.Configuration.Settings;
 
 namespace TrafficCameraEventGenerator.Configuration.Segment
 {
-    public class TrafficSegmentConfigurator : ITrafficSegmentConfigurator
+    public class TrafficSegmentSettingsConfigurator : ITrafficSegmentConfigurator
     {
         private readonly IConfigurationReader _configurationReader;
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public TrafficSegmentConfigurator(IConfigurationReader configurationReader)
+        public TrafficSegmentSettingsConfigurator(IConfigurationReader configurationReader)
         {
             _configurationReader = configurationReader;
         }
@@ -41,26 +41,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
                 new TimePeriod("17:00", "18:00", true)
             };
             string rushHourConfiguration = _configurationReader.GetConfigValue<string>("SEGMENT_RUSH_HOURS", false, null);
-            bool rushHourOnlyInWeekDays = _configurationReader.GetConfigValue("SEGMENT_RUSH_HOURS_ONLYWEEKDAYS", false, true);
-            if (!string.IsNullOrEmpty(rushHourConfiguration) && rushHourConfiguration.Contains("-"))
-            {
-                try
-                {
-                    rushHours = new List<TimePeriod>();
-                    //notation : 07:00-08:00,17:30-18:30
-                    foreach (var rushHourPeriod in rushHourConfiguration.Split(','))
-                    {
-                        if (rushHourPeriod.Contains("-"))
-                        {
-                            rushHours.Add(new TimePeriod(rushHourPeriod.Split('-')[0], rushHourPeriod.Split('-')[1], rushHourOnlyInWeekDays));
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            }
-            return rushHours;
+            return TimePeriod.ParseList(rushHourConfiguration);
         }
     }
 

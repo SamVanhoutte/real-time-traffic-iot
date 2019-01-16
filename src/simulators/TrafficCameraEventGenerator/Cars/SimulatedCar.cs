@@ -22,12 +22,13 @@ namespace TrafficCameraEventGenerator.Cars
             var metersPerMinute = metersPerHour / 60;
             double minutesToDrive = metersToDrive / (double)metersPerMinute;
             var millisecondsToDrive = ((minutesToDrive) * 60 * 1000) / simulationMultiplier;
-            var result = TimeSpan.FromMilliseconds((int)(millisecondsToDrive)); // in milliseconds
+            var result = TimeSpan.FromMilliseconds(Convert.ToInt32(millisecondsToDrive)); // in milliseconds
             return result;
         }
 
 
-        private static List<string> Colors {
+        private static List<string> Colors
+        {
             get
             {
                 var colors = new List<string>();
@@ -38,9 +39,9 @@ namespace TrafficCameraEventGenerator.Cars
 
                 return colors;
             }
-        } 
-        private static readonly List<string> Makes = new List<string> { "Opel", "Audi", "Mercedes", "Volvo", "BMW", "Volkswagen", "Saab", "Renault", "Mazda", "Toyota", "Suzuki"};
-        private static readonly List<string> Countries = new List<string> { "BE", "BE", "BE", "BE", "BE", "BE", "BE", "BE", "BE", "NL", "FR" , "PT", "FR", "NL", "IT", "IT"};
+        }
+        private static readonly List<string> Makes = new List<string> { "Opel", "Audi", "Mercedes", "Volvo", "BMW", "Volkswagen", "Saab", "Renault", "Mazda", "Toyota", "Suzuki" };
+        private static readonly List<string> Countries = new List<string> { "SK", "DK", "IT", "DE", "NL", "BE", "BE", "BE", "BE", "BE", "FR", "DE", "PL", "HU", "PT" };
 
         /// <summary>
         /// Gets random car
@@ -48,26 +49,38 @@ namespace TrafficCameraEventGenerator.Cars
         /// <param name="random">Randomizer used to generate random values</param>
         /// <param name="speeding">Is the car driving faster than the limit?</param>
         /// <returns></returns>
-        public static SimulatedCar Randomize(Random random, bool speeding, int minSpeed, int speedLimit, int maxSpeed, string licensePlateFormat = "1-###-000")
+        public static SimulatedCar Randomize(Random random, bool speeding, int minSpeed, int speedLimit, int maxSpeed, bool isRushHour, string licensePlateFormat = "1-###-000")
         {
             var car = new SimulatedCar
             {
                 LicensePlate = random.GetString(licensePlateFormat),
                 Color = Colors[random.Next(Colors.Count)],
                 Make = Makes[random.Next(Makes.Count)],
-                Country = Countries[random.Next(Countries.Count)],
+                Country = Countries[random.NextTriangularInteger(0, Countries.Count - 1, Convert.ToInt32(Countries.Count / 2))], // weighted randomization (to get more belgian cars)
                 Speeding = speeding
             };
-            // Oh boy, I'm sure this can be better, but it's way too late now 
+            if (!isRushHour)
+            {
+                // No rushhour, so assume cars are driving faster and increase minimum speed
+                minSpeed = Convert.ToInt32((minSpeed + speedLimit) * 0.75D); // No rushhour, so increase min speed
+            }
+            else
+            {
+                // Rushhour, so assume cars are driving slower and decrease maximum speed and disable speeding
+                car.Speeding = car.Speeding && random.Next(1, 20) % 19 == 0;  //only 5% of these cases will be in speeding;
+            }
+
             if (maxSpeed < speedLimit)
             {
                 // Specific case to simulate traffic jam
-                car.ExpectedSpeed = random.Next(minSpeed, maxSpeed);
+                car.ExpectedSpeed = random.NextTriangularInteger(minSpeed, maxSpeed, speedLimit);
                 car.Speeding = false;
             }
             else
             {
-                car.ExpectedSpeed = speeding ? random.Next(speedLimit, maxSpeed) : random.Next(minSpeed, speedLimit);
+                car.ExpectedSpeed = speeding
+                    ? random.NextTriangularInteger(speedLimit, maxSpeed, speedLimit + 15) // Generate speeding cars with weight of speeding around 15 more than allowed
+                    : random.NextTriangularInteger(minSpeed, speedLimit, speedLimit - 5); // Generate non speeding cars, with weight closest to maxAllowed
             }
             return car;
         }
