@@ -33,81 +33,104 @@ namespace TrafficCameraEventGenerator
         {
             var segmentConfiguration = await _configurator.GetConfiguration();
 
-
             var startCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera1);
             var endCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera2);
             var random = new Random();
             // Initialize transmitters
 
-            Parallel.For(1, segmentConfiguration.AverageCarsPerMinute + 1, async index =>
+            while(!cancellationToken.IsCancellationRequested)
             {
-                try
+                var releaseInterval = TimeSpan.FromMilliseconds(500); // replace with function
+                var currentMinute = DateTime.UtcNow.Minute;
+                while (DateTime.UtcNow.Minute == currentMinute)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    // Wait a random time between 0 seconds and 60 seconds (simulated!) 
-                    // to start this task sending out cars
-                    await Task.Delay(TimeSpan.FromMilliseconds((random.Next(60)) * 1000), cancellationToken);
-                    while (!cancellationToken.IsCancellationRequested) // Keep running until task is cancelled
+                    Task.Factory.StartNew(() => MakeOneCarDrive(random, segmentConfiguration, false, startCameraEventTransmitter, endCameraEventTransmitter, cancellationToken), cancellationToken);
+                    await Task.Delay(releaseInterval, cancellationToken);
+                }
+            }
+            //    try
+            //    {
+            //        cancellationToken.ThrowIfCancellationRequested();
+            //        // Wait a random time between 0 seconds and 60 seconds (simulated!) 
+            //        // to start this task sending out cars
+            //        await Task.Delay(TimeSpan.FromMilliseconds((random.Next(60)) * 1000), cancellationToken);
+            //        while (!cancellationToken.IsCancellationRequested) // Keep running until task is cancelled
+            //        {
+            //            var numberOfCarsSpeeding = (segmentConfiguration.AverageCarsPerMinute * ((double)segmentConfiguration.SpeedingPercentage / 100));
+            //            var isSpeeding = (index <= numberOfCarsSpeeding);
+
+            //            try
+            //            {
+
+            //                // Wait to complete the simulatedMinute
+            //                var simulatedMinute = TimeSpan.FromMilliseconds(60000 / _simulationSettings.TimeSimulationAccelerator);
+            //                if (carTimespan < simulatedMinute)
+            //                {
+            //                    await Task.Delay(simulatedMinute.Subtract(carTimespan), cancellationToken);
+            //                }
+            //            }
+            //            catch (TaskCanceledException)
+            //            {
+            //                break;
+            //            }
+            //            catch (Exception ex)
+            //            {
+            //                _logger.Error(ex, "Error happened in one of the simulation threads");
+            //            }
+            //        }
+            //    }
+            //    catch (TaskCanceledException)
+            //    { }
+            //    catch (Exception ex)
+            //    {
+            //        _logger.Error(ex, "Error happened in the simulator: " + ex.ToString());
+            //    }
+            //});
+        }
+
+        private async Task MakeOneCarDrive(Random random, TrafficSegmentConfiguration segmentConfiguration, bool isSpeeding, IEventTransmitter startCameraEventTransmitter, IEventTransmitter endCameraEventTransmitter, CancellationToken cancellationToken)
+        {
+            var car = SimulatedCar.Randomize
+            (
+                random,
+                isSpeeding,
+                segmentConfiguration.MinSpeed,
+                segmentConfiguration.SpeedLimit,
+                segmentConfiguration.MaxSpeed
+            );
+            try
+            {
+                //regenerate new license plate for every run
+                var carTimespan = car.CalculateTime(segmentConfiguration.CameraDistance, _simulationSettings.TimeSimulationAccelerator);
+                await startCameraEventTransmitter.Transmit(
+                    new CameraEvent
                     {
-                        var numberOfCarsSpeeding = (segmentConfiguration.AverageCarsPerMinute * ((double)segmentConfiguration.SpeedingPercentage / 100));
-                        var isSpeeding = (index <= numberOfCarsSpeeding);
-                        var car = SimulatedCar.Randomize
-                            (
-                                random,
-                                isSpeeding,
-                                segmentConfiguration.MinSpeed,
-                                segmentConfiguration.SpeedLimit,
-                                segmentConfiguration.MaxSpeed
-                            );
-                        try
-                        {
-                            //regenerate new license plate for every run
-                            var carTimespan = car.CalculateTime(segmentConfiguration.CameraDistance, _simulationSettings.TimeSimulationAccelerator);
-                            await startCameraEventTransmitter.Transmit(
-                                new CameraEvent
-                                {
-                                    TrajectId = segmentConfiguration.SegmentId,
-                                    CameraId = CameraType.Camera1.ToString(),
-                                    EventTime = SimulatedClock.GetTimestamp(),
-                                    Car = car,
-                                    Lane = LaneCalculator.CalculateLane(segmentConfiguration, car)
-                                }, cancellationToken);
-                            _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 01");
-                            await Task.Delay(carTimespan, cancellationToken);
-                            await endCameraEventTransmitter.Transmit(
-                                new CameraEvent
-                                {
-                                    TrajectId = segmentConfiguration.SegmentId,
-                                    CameraId = CameraType.Camera2.ToString(),
-                                    EventTime = SimulatedClock.GetTimestamp(),
-                                    Car = car,
-                                    Lane = LaneCalculator.CalculateLane(segmentConfiguration, car)
-                                }, cancellationToken);
-                            _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 02");
-                            // Wait to complete the simulatedMinute
-                            var simulatedMinute = TimeSpan.FromMilliseconds(60000 / _simulationSettings.TimeSimulationAccelerator);
-                            if (carTimespan < simulatedMinute)
-                            {
-                                await Task.Delay(simulatedMinute.Subtract(carTimespan), cancellationToken);
-                            }
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.Error(ex, "Error happened in one of the simulation threads");
-                        }
-                    }
-                }
-                catch (TaskCanceledException)
-                { }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex, "Error happened in the simulator: " + ex.ToString());
-                }
-            });
+                        TrajectId = segmentConfiguration.SegmentId,
+                        CameraId = CameraType.Camera1.ToString(),
+                        EventTime = SimulatedClock.GetTimestamp(),
+                        Car = car,
+                        Lane = LaneCalculator.CalculateLane(segmentConfiguration, car)
+                    }, cancellationToken);
+                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 01");
+                await Task.Delay(carTimespan, cancellationToken);
+                await endCameraEventTransmitter.Transmit(
+                    new CameraEvent
+                    {
+                        TrajectId = segmentConfiguration.SegmentId,
+                        CameraId = CameraType.Camera2.ToString(),
+                        EventTime = SimulatedClock.GetTimestamp(),
+                        Car = car,
+                        Lane = LaneCalculator.CalculateLane(segmentConfiguration, car)
+                    }, cancellationToken);
+                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 02");
+            }
+            catch (TaskCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error happened in one of the simulation threads");
+            }
         }
     }
 }
