@@ -23,12 +23,14 @@ namespace TrafficCamera.Tests
                   ""cameraDistance"": 2000
                 }";
 
-            var config = JsonConvert.DeserializeObject<TrafficSegmentConfiguration>(jsonValue);
+            var segmentConfig = JsonConvert.DeserializeObject<TrafficSegmentConfiguration>(jsonValue);
+            var config = new TrafficSegmentSituation(segmentConfig);
             Assert.NotNull(config);
             Assert.Equal(2, config.RushHours.Count());
-            Assert.True(config.IsRushHour(new DateTime(2019, 1, 1, 7, 1, 1)));
-            Assert.True(config.IsRushHour(new DateTime(2019, 1, 1, 17, 59, 1)));
-            Assert.False(config.IsRushHour(new DateTime(2019, 1, 1, 8, 1, 1)));
+            TimePeriod currentRushHour;
+            Assert.True(config.IsRushHour(new DateTime(2019, 1, 1, 7, 1, 1), out  currentRushHour));
+            Assert.True(config.IsRushHour(new DateTime(2019, 1, 1, 17, 59, 1), out  currentRushHour));
+            Assert.False(config.IsRushHour(new DateTime(2019, 1, 1, 8, 1, 1), out  currentRushHour));
         }
     }
 }

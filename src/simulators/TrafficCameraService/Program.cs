@@ -31,8 +31,8 @@ namespace TrafficCameraService
             //setup our DI
             var serviceProvider = new ServiceCollection()
                 .AddLogging()
-                .AddSingleton<IConfigurationReader, EnvironmentConfigurationReader>()
-                //.AddSingleton<IConfigurationReader, HardcodedConfigurationReader>()
+                //.AddSingleton<IConfigurationReader, EnvironmentConfigurationReader>()
+                .AddSingleton<IConfigurationReader, HardcodedConfigurationReader>()
                 .AddSingleton<ICameraTransmitterConfigurator, IoTHubTransmitterConfigurator>()
                 //.AddSingleton<ITrafficSegmentConfigurator, TrafficSegmentSettingsConfigurator>()
                 .AddSingleton<ITrafficSegmentConfigurator, BlobSegmentConfigurator>()

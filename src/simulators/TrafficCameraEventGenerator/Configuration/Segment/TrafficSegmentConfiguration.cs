@@ -21,35 +21,21 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
 
 
 
-        public bool IsRushHour(DateTime timeToEvaluate)
-        {
-            return RushHours.Any(rushHour => rushHour.Includes(timeToEvaluate));
-        }
-    }
 
-    public class RushHourConverter : JsonConverter
-    {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public TrafficSegmentConfiguration Clone()
         {
-            throw new NotImplementedException("Not implemented yet");
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
+            return new TrafficSegmentConfiguration
             {
-                return null;
-            }
-
-            return TimePeriod.ParseList(reader.Value.ToString());
-
-        }
-
-        public override bool CanWrite => false;
-
-        public override bool CanConvert(Type objectType)
-        {
-            return false;
+                SegmentId = SegmentId,
+                NumberOfLanes = NumberOfLanes,
+                AverageCarsPerMinute = AverageCarsPerMinute,
+                SpeedLimit = SpeedLimit,
+                RushHours = RushHours,
+                SpeedingPercentage = SpeedingPercentage,
+                CameraDistance = CameraDistance,
+                MinSpeed = MinSpeed,
+                MaxSpeed = MaxSpeed
+            };
         }
     }
 }
