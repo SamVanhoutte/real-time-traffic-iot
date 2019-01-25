@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Http;
 using Arcus.EventGrid.Publishing;
 using Arcus.EventGrid.Publishing.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -24,24 +25,30 @@ namespace EventGridTrigger
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequest req,
             ILogger log, ExecutionContext context)
         {
-            string triggerType = req.Query["trigger-type"];
             _functionContext = context;
 
             var events = new List<CarSpeedingEvent> { };
+            try
+            {
+                string requestBody = new StreamReader(req.Body).ReadToEnd();
+                log.LogInformation(requestBody);
+                var speedingList = JsonConvert.DeserializeObject<IEnumerable<CarSpeedingData>>(requestBody);
+                events.AddRange(speedingList.Select(carSpeedingData =>
+                    new CarSpeedingEvent(
+                        Guid.NewGuid().ToString("N"),
+                        $"traffic/{carSpeedingData.TrajectId}",
+                        carSpeedingData)));
+                await Publisher.PublishMany(events);
 
-            string requestBody = new StreamReader(req.Body).ReadToEnd();
-            log.LogInformation(requestBody);
-            var speedingList = JsonConvert.DeserializeObject<IEnumerable<CarSpeedingData>>(requestBody);
-            events.AddRange(speedingList.Select(carSpeedingData => 
-                new CarSpeedingEvent(
-                    Guid.NewGuid().ToString("N"), 
-                    $"traffic/{carSpeedingData.TrajectId}", 
-                    carSpeedingData)));
-            await Publisher.PublishMany(events);
+                return (ActionResult)new OkObjectResult("received");
+                    
 
-            return triggerType != null
-                ? (ActionResult)new OkObjectResult("received")
-                : new BadRequestObjectResult("Trigger type was not specified in the query string (trigger-type)");
+            }
+            catch (Exception e)
+            {
+                log.LogError(e, $"Error occurred when sending event grid messages: {e.Message}" );
+                return new InternalServerErrorResult();
+            }
         }
 
         private static IEventGridPublisher _publisher;

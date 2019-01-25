@@ -33,6 +33,6 @@ namespace EventGridTrigger
         }
 
         public override string DataVersion { get; } = "1";
-        public override string EventType { get; } = "Traffic.SpeedingCar";
+        public override string EventType { get; } = "Traffic.SpeedingCarx";
     }
 }
