@@ -58,5 +58,11 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
 
             return periods;
         }
+
+        public TimeSpan TimeLeft(DateTime timeToValidate)
+        {
+            return _endTime.Subtract(timeToValidate.TimeOfDay);
+        }
+        public TimeSpan Duration => _endTime.Subtract(_startTime);
     }
 }

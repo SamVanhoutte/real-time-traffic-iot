@@ -25,6 +25,11 @@ namespace Savanh.Extensions.Randoms
             return result.ToString();
         }
 
+        public static bool GetBooleanWithProbability(this Random random, int probabilityPercentage, bool value = true)
+        {
+            return random.Next(1, 101) <= probabilityPercentage ? value : !value;
+        }
+
         /// <summary>
         ///   Generates normally distributed numbers. Each operation makes two Gaussians for the price of one, and apparently they can be cached or something for better performance, but who cares.
         /// </summary>
