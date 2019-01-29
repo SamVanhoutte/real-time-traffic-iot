@@ -1,0 +1,7 @@
+INITIAL CONFIG : 
+
+{
+  "routes": {
+    "cloud": "FROM /messages/modules/camera/outputs/* INTO $upstream"
+  }
+}

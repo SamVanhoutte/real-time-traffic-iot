@@ -134,6 +134,10 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             {
                 AverageSpeed = MaxSpeed - 2;
             }
+            if(AverageCarsPerMinute < 3)
+            {
+                AverageCarsPerMinute = 3;
+            }
         }
 
         public int AverageSpeed { get; set; }

@@ -18,14 +18,14 @@ using Microsoft.Extensions.Logging;
 
 namespace EventGridTrigger
 {
-    public static class EventGridTrigger
+    public static class EventGridTrigger 
     {
         [FunctionName("EventGridTrigger")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequest req,
             ILogger log, ExecutionContext context)
         {
-            _functionContext = context;
+            EventGridClient.SaveContext(context);
 
             var events = new List<CarSpeedingEvent> { };
             try
@@ -38,7 +38,7 @@ namespace EventGridTrigger
                         Guid.NewGuid().ToString("N"),
                         $"traffic/{carSpeedingData.TrajectId}",
                         carSpeedingData)));
-                await Publisher.PublishMany(events);
+                await EventGridClient.Publisher.PublishMany(events);
 
                 return (ActionResult)new OkObjectResult("received");
                     
@@ -51,28 +51,6 @@ namespace EventGridTrigger
             }
         }
 
-        private static IEventGridPublisher _publisher;
-        private static ExecutionContext _functionContext;
 
-        private static IEventGridPublisher Publisher
-        {
-            get
-            {
-                if (_publisher != null) return _publisher;
-
-                var config = new ConfigurationBuilder()
-                    .SetBasePath(_functionContext.FunctionAppDirectory)
-                    .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                    .AddEnvironmentVariables()
-                    .Build();
-
-                _publisher = EventGridPublisherBuilder
-                    .ForTopic(config["event-grid-topic-name"])
-                    .UsingAuthenticationKey(config["event-grid-authentication-key"])
-                    .WithExponentialRetry<Exception>(3)
-                    .Build();
-                return _publisher;
-            }
-        }
     }
 }

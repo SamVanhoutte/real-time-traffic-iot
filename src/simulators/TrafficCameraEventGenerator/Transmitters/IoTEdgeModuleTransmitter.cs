@@ -45,6 +45,7 @@ namespace TrafficCameraEventGenerator.Transmitters
         {
             try
             {
+                _logger.Debug($"Transmitting message in IoT Edge module to output {_outputName}");
                 var policy = Policy
                     .Handle<TimeoutException>()
                     .Or<DeviceMessageLockLostException>()
