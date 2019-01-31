@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Arcus.EventGrid.Publishing;
 using Arcus.EventGrid.Publishing.Interfaces;
 using Microsoft.Azure.WebJobs;
@@ -8,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace EventGridTrigger
 {
-    internal static class EventGridClient
+    internal static class ArcusEventGridClient
     {
         private static IEventGridPublisher _publisher;
         private static ExecutionContext _functionContext;

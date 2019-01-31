@@ -1,7 +1,8 @@
 using Arcus.EventGrid.Contracts;
+using EventGridTrigger.EventData;
 using GuardNet;
 
-namespace EventGridTrigger
+namespace EventGridTrigger.Events
 {
     public class SuspectedCarDetectedEvent : Event<SuspectedCarData>
     {

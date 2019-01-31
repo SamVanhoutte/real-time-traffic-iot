@@ -1,6 +1,6 @@
 using System;
 
-namespace EventGridTrigger
+namespace EventGridTrigger.EventData
 {
     public class SuspectedCarData
     {

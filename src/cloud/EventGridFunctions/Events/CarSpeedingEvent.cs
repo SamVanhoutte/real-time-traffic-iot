@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using Arcus.EventGrid.Contracts;
 using GuardNet;
+using EventGridTrigger.EventData;
 
-namespace EventGridTrigger
+namespace EventGridTrigger.Events
 {
     public class CarSpeedingEvent : Event<CarSpeedingData>
     {

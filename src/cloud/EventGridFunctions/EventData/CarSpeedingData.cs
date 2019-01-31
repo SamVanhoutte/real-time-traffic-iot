@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace EventGridTrigger
+namespace EventGridTrigger.EventData
 {
     public class CarSpeedingData
     {
