@@ -68,7 +68,7 @@ namespace TrafficDisplaySimulatorModule
                     dynamic outputMessage = JsonConvert.DeserializeObject(alert);
                     Console.WriteLine();
                     Console.WriteLine("####################---- WARNING ----#########################################");
-                    Console.WriteLine($"##########   {outputMessage.licenseplate} you are speeding!  a fine will be sent {DateTime.Now:HH:mm}  ##########");
+                    Console.WriteLine($"##########   {outputMessage.licenseplate} you are speeding!  a fine will be sent {DateTime.Now:HH:mm}  #########");
                     Console.WriteLine("##############################################################################");
                 }
             }
