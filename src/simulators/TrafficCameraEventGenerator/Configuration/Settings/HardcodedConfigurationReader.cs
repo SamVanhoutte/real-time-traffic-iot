@@ -11,7 +11,7 @@ namespace TrafficCameraEventGenerator.Configuration.Settings
 
         private readonly IDictionary<string, string> _settings = new Dictionary<string, string>
         {
-            { "IOTHUB_OWNER_CONNECTIONSTRING", "HostName=savanh-traffic-camera.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=T/Og0ff1pUeZeN13+9wktJZ+LPxzXliCLp9KeL0oK8U=" },
+            { "IOTHUB_OWNER_CONNECTIONSTRING", "<your-connection-string>" },
             { "SEGMENT_LANE_COUNT", "4" },
             { "SEGMENT_AVG_CARS_PER_MINUTE", "70" },
             { "SEGMENT_SPEED_LIMIT", "130" },
@@ -20,7 +20,7 @@ namespace TrafficCameraEventGenerator.Configuration.Settings
             { "SEGMENT_MIN_SPEED", "9" },
             { "SEGMENT_MAX_SPEED", "188" },
             { "SEGMENT_ID", "dev" },
-            { "STORAGE_CONNECTION_STRING", "DefaultEndpointsProtocol=https;AccountName=savanhtraffic;AccountKey=wR9yOtMz215qD4uZdYTI3JnOWCzBpE1UrR2jeGgXUC8xdgBBl42GNCpTBYXD/AymMwZkcB+XO6WOJrQ5gS1Bng==;EndpointSuffix=core.windows.net"}
+            { "STORAGE_CONNECTION_STRING", "<your-connection-string>"}
         };
 
         public T GetConfigValue<T>(string variableName, bool required, T defaultValue = default(T))
