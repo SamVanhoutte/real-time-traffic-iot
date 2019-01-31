@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Savanh.Extensions.Randoms;
+using Alphirk.Simulation;
 
 namespace TrafficCameraEventGenerator.Configuration.Segment
 {
@@ -28,11 +28,11 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
         public void Resimulate(Random random)
         {
             // Check rush hour (busy or finished)
-            if (IsRushHour(SimulatedClock.GetTimestamp(), out var currentRushHour))
+            if (IsRushHour(SimulatedClock.Time, out var currentRushHour))
             {
                 AverageCarsPerMinute += random.Next(0, 10);
                 try{
-                    var rushHourEvolution = (currentRushHour.TimeLeft(SimulatedClock.GetTimestamp()).TotalSeconds /
+                    var rushHourEvolution = (currentRushHour.TimeLeft(SimulatedClock.Time).TotalSeconds /
                                          currentRushHour.Duration.TotalSeconds);
                     _currentTrend = rushHourEvolution < 0.80 ? TrafficTrend.Congesting : TrafficTrend.Clearing;
                 }
@@ -66,7 +66,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
                 if (random.Next(0, 2000) == 0)
                 {
                     _currentEvent = EventType.Accident;
-                    _currentEventStartTime = SimulatedClock.GetTimestamp();
+                    _currentEventStartTime = SimulatedClock.Time;
                     _eventLength = TimeSpan.FromMinutes(random.Next(15, 75));
                 }
             }
@@ -74,7 +74,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             // Apply accident logic
             if (_currentEvent == EventType.Accident)
             {
-                if (_currentEventStartTime.Add(_eventLength) <= SimulatedClock.GetTimestamp())
+                if (_currentEventStartTime.Add(_eventLength) <= SimulatedClock.Time)
                 {
                     _currentEvent = EventType.None;
                     ResetToNormal();
@@ -83,7 +83,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
                 AverageCarsPerMinute += random.Next(-2, 3);
 
                 try{
-                    var accidentEvolution = ((SimulatedClock.GetTimestamp() - _currentEventStartTime).TotalSeconds / _eventLength.TotalSeconds);
+                    var accidentEvolution = ((SimulatedClock.Time - _currentEventStartTime).TotalSeconds / _eventLength.TotalSeconds);
                     _currentTrend = accidentEvolution < 0.88 ? TrafficTrend.Congesting : TrafficTrend.Clearing;
                 }
                 catch(DivideByZeroException)

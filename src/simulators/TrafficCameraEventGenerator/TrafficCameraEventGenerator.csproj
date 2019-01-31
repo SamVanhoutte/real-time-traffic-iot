@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Alphirk.Simulation" Version="0.0.9-alpha" />
     <PackageReference Include="Guard.Net" Version="1.2.0" />
     <PackageReference Include="Microsoft.Azure.Devices" Version="1.17.2" />
     <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.19.0" />
@@ -13,10 +14,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="NLog" Version="4.5.11" />
     <PackageReference Include="Polly" Version="6.1.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Savanh.Extensions.Randoms\Savanh.Extensions.Randoms.csproj" />
   </ItemGroup>
 
 </Project>

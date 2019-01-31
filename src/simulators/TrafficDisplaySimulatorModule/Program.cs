@@ -72,7 +72,7 @@ namespace TrafficDisplaySimulatorModule
                     Console.WriteLine("##############################################################################");
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //Console.WriteLine(e);
             }

@@ -1,5 +1,5 @@
 ﻿using System;
-using Savanh.Extensions.Randoms;
+using Alphirk.Simulation;
 using TrafficCameraEventGenerator.Configuration.Segment;
 
 namespace TrafficCameraEventGenerator.Cars
@@ -11,7 +11,7 @@ namespace TrafficCameraEventGenerator.Cars
             if (segmentConfiguration.NumberOfLanes > 2)
             {
                 // do complexity
-                if (car.Speeding && segmentSituation.IsRushHour(SimulatedClock.GetTimestamp(), out var rushHour))
+                if (car.Speeding && segmentSituation.IsRushHour(SimulatedClock.Time, out var rushHour))
                 {
                     // Only take the two most left lanes
                     return new Random().Next(1, 3);
