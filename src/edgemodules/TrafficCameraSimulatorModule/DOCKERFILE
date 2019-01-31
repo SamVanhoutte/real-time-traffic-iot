@@ -8,5 +8,4 @@ RUN dotnet restore TrafficDemo.sln
 # copy and build everything else
 COPY . ./
 RUN dotnet publish -c Release -o out edgemodules/TrafficCameraSimulatorModule/TrafficCameraSimulatorModule.csproj
-RUN echo $(ls -1 simulators/TrafficCameraService/out)
 ENTRYPOINT ["dotnet", "edgemodules/TrafficCameraSimulatorModule/out/TrafficCameraSimulatorModule.dll"]
