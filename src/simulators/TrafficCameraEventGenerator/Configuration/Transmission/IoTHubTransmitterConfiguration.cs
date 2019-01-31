@@ -45,7 +45,6 @@ namespace TrafficCameraEventGenerator.Configuration.Transmission
                     string deviceId = $"{segmentId}-{cameraId}";
                     var camDevice = await iotHubServiceClient.GetDeviceAsync(deviceId)
                                     ?? await iotHubServiceClient.AddDeviceAsync(new Device(deviceId));
-                    //savanh-traffic-camera.azure-devices.net
                     return new IoTHubTransmitter($"HostName={GetIoTHubUri(iotHubOwnerConnectionString)};DeviceId={deviceId};SharedAccessKey={camDevice.Authentication.SymmetricKey.PrimaryKey}");
                 });
             }
@@ -58,7 +57,6 @@ namespace TrafficCameraEventGenerator.Configuration.Transmission
 
         private string GetIoTHubUri(string connectionString)
         {
-            //"HostName=savanh-traffic-camera.azure-devices.net;DeviceId=dev-camera-01;SharedAccessKey=nSWtl/1yw/cXebzMAsLalHyzFoBx6nBXCIMe5AzzgcY="
             foreach (var option in connectionString.Split(';'))
             {
                 if (option.Split('=')[0].Equals("HostName", StringComparison.InvariantCultureIgnoreCase))

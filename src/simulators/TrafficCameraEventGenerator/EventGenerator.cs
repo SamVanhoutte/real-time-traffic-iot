@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Alphirk.Simulation;
 using NLog;
-using Savanh.Extensions.Randoms;
 using TrafficCameraEventGenerator.Cars;
 using TrafficCameraEventGenerator.Configuration;
 using TrafficCameraEventGenerator.Configuration.Segment;
@@ -32,6 +32,7 @@ namespace TrafficCameraEventGenerator
 
         public async Task Run(CancellationToken cancellationToken)
         {
+            SimulatedClock.Init(_simulationSettings.TimeSimulationAccelerator);
             var segmentConfiguration = await _configurator.GetConfiguration();
             if (segmentConfiguration == null)
             {
@@ -50,8 +51,8 @@ namespace TrafficCameraEventGenerator
                 {
                     segmentSituation.Resimulate(random);
                     var releaseInterval = TimeSpan.FromMilliseconds(Convert.ToInt32(60000 / segmentSituation.AverageCarsPerMinute)); // replace with function
-                    var currentMinute = SimulatedClock.GetTimestamp().Minute;
-                    while (SimulatedClock.GetTimestamp().Minute == currentMinute)
+                    var currentMinute = SimulatedClock.Time.Minute;
+                    while (SimulatedClock.Time.Minute == currentMinute)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         Task.Factory.StartNew(() => MakeOneCarDrive(random, segmentConfiguration, segmentSituation, startCameraEventTransmitter, endCameraEventTransmitter, cancellationToken), cancellationToken);
@@ -84,7 +85,7 @@ namespace TrafficCameraEventGenerator
                     {
                         TrajectId = trafficConfiguration.SegmentId,
                         CameraId = CameraType.Camera1.ToString(),
-                        EventTime = SimulatedClock.GetTimestamp(),
+                        EventTime = SimulatedClock.Time,
                         Car = car,
                         Lane = LaneCalculator.CalculateLane(trafficConfiguration, segmentSituation, car)
                     }, cancellationToken);
@@ -95,7 +96,7 @@ namespace TrafficCameraEventGenerator
                     {
                         TrajectId = trafficConfiguration.SegmentId,
                         CameraId = CameraType.Camera2.ToString(),
-                        EventTime = SimulatedClock.GetTimestamp(),
+                        EventTime = SimulatedClock.Time,
                         Car = car,
                         Lane = LaneCalculator.CalculateLane(trafficConfiguration, segmentSituation, car)
                     }, cancellationToken);
