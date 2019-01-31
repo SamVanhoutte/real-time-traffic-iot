@@ -31,10 +31,16 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             if (IsRushHour(SimulatedClock.GetTimestamp(), out var currentRushHour))
             {
                 AverageCarsPerMinute += random.Next(0, 10);
-                var rushHourEvolution = (currentRushHour.TimeLeft(SimulatedClock.GetTimestamp()).Minutes /
-                                         currentRushHour.Duration.Minutes);
+                try{
+                    var rushHourEvolution = (currentRushHour.TimeLeft(SimulatedClock.GetTimestamp()).TotalSeconds /
+                                         currentRushHour.Duration.TotalSeconds);
+                    _currentTrend = rushHourEvolution < 0.80 ? TrafficTrend.Congesting : TrafficTrend.Clearing;
+                }
+                catch(DivideByZeroException)
+                {
+                    _currentTrend = TrafficTrend.Clearing;
+                }   
                 // First 80% of the timeframe, rushhour congestion, then clearing
-                _currentTrend = rushHourEvolution < 80 ? TrafficTrend.Congesting : TrafficTrend.Clearing;
                 _currentEvent = EventType.RushHour;
             }
             else
@@ -75,9 +81,15 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
                 }
                 // Apply random small changes
                 AverageCarsPerMinute += random.Next(-2, 3);
-                var accidentEvolution = ((SimulatedClock.GetTimestamp() - _currentEventStartTime).Minutes / _eventLength.Minutes);
-                // First 80% of the timeframe, rushhour congestion, then clearing
-                _currentTrend = accidentEvolution < 80 ? TrafficTrend.Congesting : TrafficTrend.Clearing;
+
+                try{
+                    var accidentEvolution = ((SimulatedClock.GetTimestamp() - _currentEventStartTime).TotalSeconds / _eventLength.TotalSeconds);
+                    _currentTrend = accidentEvolution < 0.88 ? TrafficTrend.Congesting : TrafficTrend.Clearing;
+                }
+                catch(DivideByZeroException)
+                {
+                    _currentTrend = TrafficTrend.Clearing;
+                } 
                 _currentEvent = EventType.RushHour;
             }
 
@@ -121,6 +133,10 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             if (AverageSpeed > MaxSpeed - 2)
             {
                 AverageSpeed = MaxSpeed - 2;
+            }
+            if(AverageCarsPerMinute < 3)
+            {
+                AverageCarsPerMinute = 3;
             }
         }
 

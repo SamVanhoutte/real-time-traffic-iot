@@ -33,6 +33,12 @@ namespace TrafficCameraEventGenerator
         public async Task Run(CancellationToken cancellationToken)
         {
             var segmentConfiguration = await _configurator.GetConfiguration();
+            if (segmentConfiguration == null)
+            {
+                _logger.Error($"The segment configuration was not found and resulted to null");
+                return;
+            }
+
             var segmentSituation = new TrafficSegmentSituation(segmentConfiguration);
             var startCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera1);
             var endCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera2);

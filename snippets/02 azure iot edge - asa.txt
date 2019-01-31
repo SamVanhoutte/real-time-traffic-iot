@@ -1,0 +1,13 @@
+Module settings
+D:\\Temp\\iot-edge\\asa:/asareferencedata
+
+
+UPDATED CONFIG : 
+
+{
+  "routes": {
+    "edge": "FROM /messages/modules/camera/outputs/* INTO BrokeredEndpoint(\"/modules/traffic-speeding-detection-edge/inputs/iot-speed-events\")",
+    "camera": "FROM /messages/modules/traffic-speeding-detection-edge/outputs/* INTO BrokeredEndpoint(\"/modules/display/inputs/camera\")",
+    "cloud": "FROM /messages/modules/camera/outputs/* INTO $upstream"
+  }
+}
