@@ -13,5 +13,7 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
+- script: dotnet test --c $(buildConfiguration) /src/TrafficDemo.sln
+  displayName: 'dotnet build $(buildConfiguration)'
+- script: dotnet build --c $(buildConfiguration) /src/TrafficDemo.sln
   displayName: 'dotnet build $(buildConfiguration)'
