@@ -15,5 +15,5 @@ variables:
 steps:
 - script: dotnet build -c $(buildConfiguration) "src\TrafficDemo.sln"
   displayName: 'Build solution'
-- script: dotnet test "src\tests\TrafficCamera.Tests\TrafficCamera.Tests.csproj"
+- script: dotnet test "src\tests\TrafficCameraEventGenerator.Tests\TrafficCameraEventGenerator.Tests.csproj"
   displayName: 'Run tests'
