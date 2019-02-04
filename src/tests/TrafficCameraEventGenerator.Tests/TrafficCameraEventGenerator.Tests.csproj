@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\simulators\TrafficCameraEventGenerator\TrafficCameraEventGenerator.csproj" />
+    <ProjectReference Include="..\..\edgemodules\CameraModule\TrafficCameraEventGenerator\TrafficCameraEventGenerator.csproj" />
   </ItemGroup>
 
 </Project>
