@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\simulators\TrafficCameraEventGenerator\TrafficCameraEventGenerator.csproj" />
+    <ProjectReference Include="..\TrafficCameraEventGenerator\TrafficCameraEventGenerator.csproj" />
   </ItemGroup>
 
 </Project>

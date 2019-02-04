@@ -3,21 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Simulator", "Simulator", "{8BCC216B-42C9-4BDA-83A3-9F3E2E6F6B62}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrafficCameraEventGenerator", "simulators\TrafficCameraEventGenerator\TrafficCameraEventGenerator.csproj", "{60A97851-E329-4D60-B136-AB8B63D53D6A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrafficCameraEventGenerator.Tests", "tests\TrafficCamera.Tests\TrafficCameraEventGenerator.Tests.csproj", "{68081DA2-B88F-49CB-83BA-00FA01F3E430}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cloud", "Cloud", "{6AFA28AD-D628-449C-BFB4-5D6A86B8EB70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EdgeModules", "EdgeModules", "{C9A2761E-2621-485A-AA54-333D9E36F95E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrafficCameraSimulatorModule", "edgemodules\TrafficCameraSimulatorModule\TrafficCameraSimulatorModule.csproj", "{F53E4F5B-A714-427A-8ED5-0DC3F3D0B730}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrafficDisplaySimulatorModule", "edgemodules\TrafficDisplaySimulatorModule\TrafficDisplaySimulatorModule.csproj", "{14D4CA18-1EC9-46CC-8BD3-FF68019CA9DD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventGridFunctions", "cloud\EventGridFunctions\EventGridFunctions.csproj", "{348F474C-22D7-4C5D-8284-D952D07869B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{DA1F1090-ED2C-48A5-A8DA-AD9CC2C9CB84}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrafficCameraEventGenerator.Tests", "tests\TrafficCameraEventGenerator.Tests\TrafficCameraEventGenerator.Tests.csproj", "{ACFA4C82-6935-4EDE-8E74-699FD43658A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CameraModule", "CameraModule", "{784C7EA1-166B-4D3B-BB39-7086945A8F20}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DisplayModule", "DisplayModule", "{31EAB100-6D5D-48A4-87C2-0F16F1B64A0B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrafficCameraEventGenerator", "edgemodules\CameraModule\TrafficCameraEventGenerator\TrafficCameraEventGenerator.csproj", "{EB1990E7-DD93-44CB-9084-FD916740A8A9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrafficCameraSimulatorModule", "edgemodules\CameraModule\TrafficCameraSimulatorModule\TrafficCameraSimulatorModule.csproj", "{70E171E4-905D-45F4-93C9-292928020790}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrafficDisplaySimulatorModule", "edgemodules\DisplayModule\TrafficDisplaySimulatorModule\TrafficDisplaySimulatorModule.csproj", "{8D00C35F-42ED-437C-BEDC-0FA64777A984}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,36 +29,38 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{60A97851-E329-4D60-B136-AB8B63D53D6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{60A97851-E329-4D60-B136-AB8B63D53D6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{60A97851-E329-4D60-B136-AB8B63D53D6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{60A97851-E329-4D60-B136-AB8B63D53D6A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{68081DA2-B88F-49CB-83BA-00FA01F3E430}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{68081DA2-B88F-49CB-83BA-00FA01F3E430}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{68081DA2-B88F-49CB-83BA-00FA01F3E430}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{68081DA2-B88F-49CB-83BA-00FA01F3E430}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F53E4F5B-A714-427A-8ED5-0DC3F3D0B730}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F53E4F5B-A714-427A-8ED5-0DC3F3D0B730}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F53E4F5B-A714-427A-8ED5-0DC3F3D0B730}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F53E4F5B-A714-427A-8ED5-0DC3F3D0B730}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14D4CA18-1EC9-46CC-8BD3-FF68019CA9DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{14D4CA18-1EC9-46CC-8BD3-FF68019CA9DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{14D4CA18-1EC9-46CC-8BD3-FF68019CA9DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{14D4CA18-1EC9-46CC-8BD3-FF68019CA9DD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{348F474C-22D7-4C5D-8284-D952D07869B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{348F474C-22D7-4C5D-8284-D952D07869B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{348F474C-22D7-4C5D-8284-D952D07869B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{348F474C-22D7-4C5D-8284-D952D07869B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACFA4C82-6935-4EDE-8E74-699FD43658A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACFA4C82-6935-4EDE-8E74-699FD43658A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACFA4C82-6935-4EDE-8E74-699FD43658A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACFA4C82-6935-4EDE-8E74-699FD43658A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB1990E7-DD93-44CB-9084-FD916740A8A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB1990E7-DD93-44CB-9084-FD916740A8A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB1990E7-DD93-44CB-9084-FD916740A8A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB1990E7-DD93-44CB-9084-FD916740A8A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70E171E4-905D-45F4-93C9-292928020790}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70E171E4-905D-45F4-93C9-292928020790}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70E171E4-905D-45F4-93C9-292928020790}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70E171E4-905D-45F4-93C9-292928020790}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D00C35F-42ED-437C-BEDC-0FA64777A984}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D00C35F-42ED-437C-BEDC-0FA64777A984}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D00C35F-42ED-437C-BEDC-0FA64777A984}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D00C35F-42ED-437C-BEDC-0FA64777A984}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{60A97851-E329-4D60-B136-AB8B63D53D6A} = {8BCC216B-42C9-4BDA-83A3-9F3E2E6F6B62}
-		{68081DA2-B88F-49CB-83BA-00FA01F3E430} = {8BCC216B-42C9-4BDA-83A3-9F3E2E6F6B62}
-		{F53E4F5B-A714-427A-8ED5-0DC3F3D0B730} = {C9A2761E-2621-485A-AA54-333D9E36F95E}
-		{14D4CA18-1EC9-46CC-8BD3-FF68019CA9DD} = {C9A2761E-2621-485A-AA54-333D9E36F95E}
 		{348F474C-22D7-4C5D-8284-D952D07869B5} = {6AFA28AD-D628-449C-BFB4-5D6A86B8EB70}
+		{ACFA4C82-6935-4EDE-8E74-699FD43658A8} = {DA1F1090-ED2C-48A5-A8DA-AD9CC2C9CB84}
+		{784C7EA1-166B-4D3B-BB39-7086945A8F20} = {C9A2761E-2621-485A-AA54-333D9E36F95E}
+		{31EAB100-6D5D-48A4-87C2-0F16F1B64A0B} = {C9A2761E-2621-485A-AA54-333D9E36F95E}
+		{EB1990E7-DD93-44CB-9084-FD916740A8A9} = {784C7EA1-166B-4D3B-BB39-7086945A8F20}
+		{70E171E4-905D-45F4-93C9-292928020790} = {784C7EA1-166B-4D3B-BB39-7086945A8F20}
+		{8D00C35F-42ED-437C-BEDC-0FA64777A984} = {31EAB100-6D5D-48A4-87C2-0F16F1B64A0B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {20BD8240-683A-4B9F-8767-EE912E0A5EA4}
