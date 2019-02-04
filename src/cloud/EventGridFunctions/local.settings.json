@@ -1,0 +1,11 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "suspected-cars-eventhub": "Endpoint=sb://savanh-traffic-suspects.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=Dj2QYY/16sv4IdWik/aVWwpTC8ahfk2egLsWh94yovs=;EntityPath=savanh-traffic-suspects"
+  },
+  "event-grid-topic-name": "https://savanh-real-time-iot.westeurope-1.eventgrid.azure.net/api/events",
+  "event-grid-authentication-key": "dNNKXTgaLe0D/04xYpUDLaue35r/5f80V4tAlCstkug=",
+}
