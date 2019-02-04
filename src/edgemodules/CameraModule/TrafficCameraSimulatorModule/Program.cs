@@ -56,8 +56,6 @@ namespace TrafficCameraService
             var serviceCollection = new ServiceCollection()
                 .AddLogging()
                 .AddSingleton<IConfigurationReader, EnvironmentConfigurationReader>()
-                //.AddSingleton<IConfigurationReader, HardcodedConfigurationReader>()
-                //.AddSingleton<ITrafficSegmentConfigurator, TrafficSegmentSettingsConfigurator>()
                 .AddSingleton<ITrafficSegmentConfigurator, BlobSegmentConfigurator>()
                 .AddSingleton<ITimeSimulationSettings, TimeSimulationSettings>()
                 .AddSingleton<IEventGenerator, EventGenerator>();
