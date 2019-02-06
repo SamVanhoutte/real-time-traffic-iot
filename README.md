@@ -17,7 +17,8 @@ This will project will be supplied with all relevant arm templates to deploy eve
 
 # Documentation
 
-- [Azure IoT Edge components](./docs/azure-iot-edge.md)
+- [Using the public camera simulator container image](./docs/docker-camera-simulator.md)
+- [Building and configurating the Azure IoT Edge components](./docs/azure-iot-edge.md)
 
 # License Information
 This is licensed under The MIT License (MIT). Which means that you can use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the web application. But you always need to state that Codit is the original author of this web application.
