@@ -58,6 +58,7 @@ This means that, by default, the configuration values should be coming through t
 In order to run the simulator as a Container Instance or Edge module, it is needed to provide the right configuration values as Environment Variable on the container creation options.
 
 The following configuration values should be specified:
+
 | Configuration key             	| Required by                   	| Description                                                                                                                                                                                                                                	|
 |-------------------------------	|-------------------------------	|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
 | SEGMENT_ID                    	| All                           	| Required to indicate the ID of the traffic segment.  This will be used to load the right settings from the ```ISegmentConfigurator```.                                                                                                            	|
