@@ -1,0 +1,830 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "site_name": {
+            "defaultValue": "savanh-traffic",
+            "type": "String"
+        },
+        "eventgrid_connection_name": {
+            "defaultValue": "azureeventgrid",
+            "type": "String"
+        },
+        "serverfarm_plan_name": {
+            "defaultValue": "WestEuropePlan",
+            "type": "String"
+        },
+        "appinsights_components_name": {
+            "defaultValue": "savanh-traffic",
+            "type": "String"
+        },
+        "config_web_name": {
+            "defaultValue": "web",
+            "type": "String"
+        },
+        "iot_hub_name": {
+            "defaultValue": "savanh-traffic-camera",
+            "type": "String"
+        },
+        "event_grid_topic_name": {
+            "defaultValue": "savanh-real-time-iot",
+            "type": "String"
+        },
+        "storageaccount_name": {
+            "defaultValue": "savanhtraffic",
+            "type": "String"
+        },
+        "event_hub_namespace": {
+            "defaultValue": "traffic-speed-telemetry",
+            "type": "String"
+        },
+        "logic_app_speedticket_creation": {
+            "defaultValue": "traffic-speedticket-creation",
+            "type": "String"
+        },
+        "logic_app_suspectedcar_alerting": {
+            "defaultValue": "traffic-suspectedcar-detection",
+            "type": "String"
+        },
+        "eventhubs_speed_averages_name": {
+            "defaultValue": "speed-averages",
+            "type": "String"
+        },
+        "eventhubs_traffic_speed_events_name": {
+            "defaultValue": "traffic-speed-events",
+            "type": "String"
+        },
+        "eventhubs_traffic_speed_events_name": {
+            "defaultValue": "traffic-speed-events",
+            "type": "String"
+        },
+        "hostname_bindings": {
+            "defaultValue": "savanh-traffic.azurewebsites.net",
+            "type": "String"
+        },
+        "eventhubs_savanh_traffic_suspects_name": {
+            "defaultValue": "savanh-traffic-suspects",
+            "type": "String"
+        },
+        "event_hub_root_key_name": {
+            "defaultValue": "RootManageSharedAccessKey",
+            "type": "String"
+        },
+        "authorizationRules_timeseries_name": {
+            "defaultValue": "timeseries",
+            "type": "String"
+        },
+        "consumergroups_dashboard_name": {
+            "defaultValue": "dashboard",
+            "type": "String"
+        },
+        "consumergroups_timeseries_name": {
+            "defaultValue": "timeseries",
+            "type": "String"
+        },
+        "default_consumergroup_name": {
+            "defaultValue": "$Default",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "Generalized from resource: '/subscriptions/b73995e3-caad-4882-8644-f2175789c3ff/resourceGroups/savanh-real-time-iot/providers/Microsoft.Devices/IotHubs/savanh-traffic-camera'.",
+            "type": "Microsoft.Devices/IotHubs",
+            "sku": {
+                "name": "S1",
+                "tier": "Standard",
+                "capacity": 3
+            },
+            "name": "[parameters('iot_hub_name')]",
+            "apiVersion": "2018-04-01",
+            "location": "westeurope",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "operationsMonitoringProperties": {
+                    "events": {
+                        "None": "None",
+                        "Connections": "None",
+                        "DeviceTelemetry": "None",
+                        "C2DCommands": "None",
+                        "DeviceIdentityOperations": "None",
+                        "FileUploadOperations": "None",
+                        "Routes": "None"
+                    }
+                },
+                "ipFilterRules": [],
+                "eventHubEndpoints": {
+                    "events": {
+                        "retentionTimeInDays": 1,
+                        "partitionCount": 4,
+                        "partitionIds": [
+                            "0",
+                            "1",
+                            "2",
+                            "3"
+                        ],
+                        "path": "[parameters('iot_hub_name')]",
+                        "endpoint": "sb://iothub-ns-savanh-tra-1175501-34f5efed53.servicebus.windows.net/ TODO"
+                    },
+                    "operationsMonitoringEvents": {
+                        "retentionTimeInDays": 1,
+                        "partitionCount": 4,
+                        "partitionIds": [
+                            "0",
+                            "1",
+                            "2",
+                            "3"
+                        ],
+                        "path": "[concat(parameters('iot_hub_name'),'-operationmonitoring')]",
+                        "endpoint": "sb://iothub-ns-savanh-tra-1175501-34f5efed53.servicebus.windows.net/ TODO"
+                    }
+                },
+                "routing": {
+                    "endpoints": {
+                        "serviceBusQueues": [],
+                        "serviceBusTopics": [],
+                        "eventHubs": [],
+                        "storageContainers": [
+                            {
+                                "connectionString": "DefaultEndpointsProtocol=https;AccountName=savanhtraffic;AccountKey=****TODO",
+                                "containerName": "traffic-telemetry",
+                                "fileNameFormat": "{iothub}-{partition}-{YYYY}-{MM}/{DD}-{HH}-{mm}",
+                                "batchFrequencyInSeconds": 200,
+                                "maxChunkSizeInBytes": 104857600,
+                                "encoding": "avro",
+                                "name": "traffic-telemetry",
+                                "subscriptionId": "b73995e3-caad-4882-8644-f2175789c3ff",
+                                "resourceGroup": "savanh-real-time-iot"
+                            }
+                        ]
+                    },
+                    "routes": [
+                        {
+                            "name": "telemetry-to-blob",
+                            "source": "DeviceMessages",
+                            "condition": "true",
+                            "endpointNames": [
+                                "traffic-telemetry"
+                            ],
+                            "isEnabled": true
+                        }
+                    ],
+                    "fallbackRoute": {
+                        "name": "$fallback",
+                        "source": "DeviceMessages",
+                        "condition": "true",
+                        "endpointNames": [
+                            "events"
+                        ],
+                        "isEnabled": true
+                    }
+                },
+                "storageEndpoints": {
+                    "$default": {
+                        "sasTtlAsIso8601": "PT1H",
+                        "connectionString": "",
+                        "containerName": ""
+                    }
+                },
+                "messagingEndpoints": {
+                    "fileNotifications": {
+                        "lockDurationAsIso8601": "PT1M",
+                        "ttlAsIso8601": "PT1H",
+                        "maxDeliveryCount": 10
+                    }
+                },
+                "enableFileUploadNotifications": false,
+                "cloudToDevice": {
+                    "maxDeliveryCount": 10,
+                    "defaultTtlAsIso8601": "PT1H",
+                    "feedback": {
+                        "lockDurationAsIso8601": "PT1M",
+                        "ttlAsIso8601": "PT1H",
+                        "maxDeliveryCount": 10
+                    }
+                },
+                "features": "None"
+            },
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.EventGrid/topics",
+            "name": "[parameters('event_grid_topic_name')]",
+            "apiVersion": "2018-01-01",
+            "location": "westeurope",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "endpoint": "[concat('https://', parameters('event_grid_topic_name'),'.westeurope-1.eventgrid.azure.net/api/events')]"
+            },
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces",
+            "sku": {
+                "name": "Standard",
+                "tier": "Standard",
+                "capacity": 1
+            },
+            "name": "[parameters('event_hub_namespace')]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "isAutoInflateEnabled": false,
+                "maximumThroughputUnits": 0
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "remove this ? todo",
+            "type": "microsoft.insights/components",
+            "kind": "web",
+            "name": "[parameters('appinsights_components_name')]",
+            "apiVersion": "2015-05-01",
+            "location": "westeurope",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "Application_Type": "web",
+                "Flow_Type": null,
+                "Request_Source": "IbizaWebAppExtensionCreate",
+                "HockeyAppId": null,
+                "SamplingPercentage": null
+            },
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "name": "[parameters('logic_app_speedticket_creation')]",
+            "apiVersion": "2017-07-01",
+            "location": "westeurope",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_resource_event_occurs": {
+                            "splitOn": "@triggerBody()",
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "properties": {
+                                        "destination": {
+                                            "endpointType": "webhook",
+                                            "properties": {
+                                                "endpointUrl": "@{listCallbackUrl()}"
+                                            }
+                                        },
+                                        "filter": {
+                                            "includedEventTypes": [
+                                                "Traffic.SpeedingCar"
+                                            ]
+                                        },
+                                        "topic": "[resourceId('Microsoft.EventGrid/topics', parameters('event_grid_topic_name'))]"
+                                    }
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureeventgrid']['connectionId']"
+                                    }
+                                },
+                                "path": "/subscriptions/@{encodeURIComponent('b73995e3-caad-4882-8644-f2175789c3ff')}/providers/@{encodeURIComponent('Microsoft.EventGrid.Topics')}/resource/eventSubscriptions",
+                                "queries": {
+                                    "subscriptionName": "speedticket-creation-subscription",
+                                    "x-ms-api-version": "2017-06-15-preview"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {},
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureeventgrid": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('eventgrid_connection_name'))]",
+                                "connectionName": "azureeventgrid",
+                                "id": "/subscriptions/b73995e3-caad-4882-8644-f2175789c3ff/providers/Microsoft.Web/locations/westeurope/managedApis/azureeventgrid"
+                            }
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('event_grid_topic_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('eventgrid_connection_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "name": "[parameters('logic_app_suspectedcar_alerting')]",
+            "apiVersion": "2017-07-01",
+            "location": "westeurope",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_resource_event_occurs": {
+                            "splitOn": "@triggerBody()",
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "properties": {
+                                        "destination": {
+                                            "endpointType": "webhook",
+                                            "properties": {
+                                                "endpointUrl": "@{listCallbackUrl()}"
+                                            }
+                                        },
+                                        "filter": {
+                                            "includedEventTypes": [
+                                                "Traffic.SuspectedCar"
+                                            ]
+                                        },
+                                        "topic": "[resourceId('Microsoft.EventGrid/topics', parameters('event_grid_topic_name'))]"
+                                    }
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureeventgrid']['connectionId']"
+                                    }
+                                },
+                                "path": "/subscriptions/@{encodeURIComponent('b73995e3-caad-4882-8644-f2175789c3ff')}/providers/@{encodeURIComponent('Microsoft.EventGrid.Topics')}/resource/eventSubscriptions",
+                                "queries": {
+                                    "subscriptionName": "suspectedcar-detection-subscription",
+                                    "x-ms-api-version": "2017-06-15-preview"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {},
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureeventgrid": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('eventgrid_connection_name'))]",
+                                "connectionName": "azureeventgrid",
+                                "id": "/subscriptions/b73995e3-caad-4882-8644-f2175789c3ff/providers/Microsoft.Web/locations/westeurope/managedApis/azureeventgrid"
+                            }
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('event_grid_topic_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('eventgrid_connection_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "name": "[parameters('storageaccount_name')]",
+            "apiVersion": "2018-07-01",
+            "location": "westeurope",
+            "tags": {},
+            "scale": null,
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "enabled": true
+                        },
+                        "blob": {
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            },
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "name": "[parameters('eventgrid_connection_name')]",
+            "apiVersion": "2016-06-01",
+            "location": "westeurope",
+            "scale": null,
+            "properties": {
+                "displayName": "sam.vanhoutte@marchitec.be//TODO",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/b73995e3-caad-4882-8644-f2175789c3ff/providers/Microsoft.Web/locations/westeurope/managedApis/', parameters('eventgrid_connection_name'))]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "sku": {
+                "name": "Y1",
+                "tier": "Dynamic",
+                "size": "Y1",
+                "family": "Y",
+                "capacity": 0
+            },
+            "kind": "functionapp",
+            "name": "[parameters('serverfarm_plan_name')]",
+            "apiVersion": "2016-09-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "name": "[parameters('serverfarm_plan_name')]",
+                "workerTierName": null,
+                "adminSiteName": null,
+                "hostingEnvironmentProfile": null,
+                "perSiteScaling": false,
+                "reserved": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+            },
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "name": "[parameters('site_name')]",
+            "apiVersion": "2016-08-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('site_name'),'.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "virtualIP": null,
+                        "thumbprint": null,
+                        "toUpdate": null,
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('site_name'),'.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "virtualIP": null,
+                        "thumbprint": null,
+                        "toUpdate": null,
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarm_plan_name'))]",
+                "reserved": false,
+                "siteConfig": null,
+                "scmSiteAlsoStopped": false,
+                "hostingEnvironmentProfile": null,
+                "clientAffinityEnabled": false,
+                "clientCertEnabled": false,
+                "hostNamesDisabled": false,
+                "containerSize": 1536,
+                "dailyMemoryTimeQuota": 0,
+                "cloningInfo": null,
+                "httpsOnly": false
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarm_plan_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('event_hub_root_key_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "rights": [
+                    "Listen",
+                    "Manage",
+                    "Send"
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "messageRetentionInDays": 1,
+                "partitionCount": 2,
+                "status": "Active"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'), '/', parameters('default_consumergroup_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {},
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_traffic_speed_events_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'), '/', parameters('consumergroups_dashboard_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {},
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_traffic_speed_events_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'), '/', parameters('consumergroups_timeseries_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {},
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_traffic_speed_events_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_savanh_traffic_suspects_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "messageRetentionInDays": 1,
+                "partitionCount": 2,
+                "status": "Active"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_speed_averages_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "messageRetentionInDays": 1,
+                "partitionCount": 4,
+                "status": "Active"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "messageRetentionInDays": 1,
+                "partitionCount": 4,
+                "status": "Active"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_savanh_traffic_suspects_name'), '/', parameters('default_consumergroup_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {},
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_savanh_traffic_suspects_name'))]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_speed_averages_name'), '/', parameters('authorizationRules_timeseries_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "rights": [
+                    "Manage",
+                    "Listen",
+                    "Send"
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_speed_averages_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_speed_averages_name'), '/', parameters('default_consumergroup_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {},
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_speed_averages_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'), '/', parameters('default_consumergroup_name'))]",
+            "apiVersion": "2017-04-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {},
+            "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_traffic_speed_events_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "name": "[concat(parameters('site_name'), '/', parameters('config_web_name'))]",
+            "apiVersion": "2016-08-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "phpVersion": "5.6",
+                "pythonVersion": "",
+                "nodeVersion": "",
+                "linuxFxVersion": "",
+                "windowsFxVersion": null,
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": null,
+                "httpLoggingEnabled": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$savanh-traffic",
+                "publishingPassword": null,
+                "appSettings": null,
+                "azureStorageAccounts": {},
+                "metadata": null,
+                "connectionStrings": null,
+                "machineKey": null,
+                "handlerMappings": null,
+                "documentRoot": null,
+                "scmType": "None",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "javaVersion": null,
+                "javaContainer": null,
+                "javaContainerVersion": null,
+                "appCommandLine": "",
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false,
+                        "virtualDirectories": null
+                    }
+                ],
+                "winAuthAdminState": 0,
+                "winAuthTenantState": 0,
+                "customAppPoolIdentityAdminState": false,
+                "customAppPoolIdentityTenantState": false,
+                "runtimeADUser": null,
+                "runtimeADUserPassword": null,
+                "loadBalancing": "LeastRequests",
+                "routingRules": [],
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "limits": null,
+                "autoHealEnabled": false,
+                "autoHealRules": null,
+                "tracingOptions": null,
+                "vnetName": "",
+                "siteAuthEnabled": false,
+                "siteAuthSettings": {
+                    "enabled": null,
+                    "unauthenticatedClientAction": null,
+                    "tokenStoreEnabled": null,
+                    "allowedExternalRedirectUrls": null,
+                    "defaultProvider": null,
+                    "clientId": null,
+                    "clientSecret": null,
+                    "clientSecretCertificateThumbprint": null,
+                    "issuer": null,
+                    "allowedAudiences": null,
+                    "additionalLoginParams": null,
+                    "isAadAutoProvisioned": false,
+                    "googleClientId": null,
+                    "googleClientSecret": null,
+                    "googleOAuthScopes": null,
+                    "facebookAppId": null,
+                    "facebookAppSecret": null,
+                    "facebookOAuthScopes": null,
+                    "twitterConsumerKey": null,
+                    "twitterConsumerSecret": null,
+                    "microsoftAccountClientId": null,
+                    "microsoftAccountClientSecret": null,
+                    "microsoftAccountOAuthScopes": null
+                },
+                "cors": {
+                    "allowedOrigins": [
+                        "https://functions.azure.com",
+                        "https://functions-staging.azure.com",
+                        "https://functions-next.azure.com"
+                    ],
+                    "supportCredentials": false
+                },
+                "push": null,
+                "apiDefinition": null,
+                "autoSwapSlotName": null,
+                "localMySqlEnabled": false,
+                "managedServiceIdentityId": null,
+                "xManagedServiceIdentityId": null,
+                "ipSecurityRestrictions": null,
+                "scmIpSecurityRestrictions": null,
+                "scmIpSecurityRestrictionsUseMain": null,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "reservedInstanceCount": 0
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('site_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "name": "[concat(parameters('site_name'), '/', parameters('hostname_bindings'))]",
+            "apiVersion": "2016-08-01",
+            "location": "West Europe",
+            "scale": null,
+            "properties": {
+                "siteName": "savanh-traffic",
+                "domainId": null,
+                "hostNameType": "Verified"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('site_name'))]"
+            ]
+        }
+    ]
+}

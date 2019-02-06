@@ -1,0 +1,132 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_savanh_traffic_name": {
+            "value": null
+        },
+        "connections_azureeventgrid_name": {
+            "value": null
+        },
+        "serverfarms_WestEuropePlan_name": {
+            "value": null
+        },
+        "components_savanh_traffic_name": {
+            "value": null
+        },
+        "config_web_name": {
+            "value": null
+        },
+        "IotHubs_savanh_traffic_camera_name": {
+            "value": null
+        },
+        "topics_savanh_real_time_iot_name": {
+            "value": null
+        },
+        "storageAccounts_savanhtraffic_name": {
+            "value": null
+        },
+        "namespaces_traffic_speed_telemetry_name": {
+            "value": null
+        },
+        "namespaces_savanh_traffic_suspects_name": {
+            "value": null
+        },
+        "workflows_traffic_speedticket_creation_name": {
+            "value": null
+        },
+        "workflows_traffic_suspectedcar_detection_name": {
+            "value": null
+        },
+        "alertrules_Failure_Anomalies___savanh_traffic_name": {
+            "value": null
+        },
+        "containerGroups_scenario_01_simulator_name": {
+            "value": null
+        },
+        "containerGroups_scenario_02_simulator_name": {
+            "value": null
+        },
+        "containerGroups_scenario_03_simulator_name": {
+            "value": null
+        },
+        "containerGroups_scenario_04_simulator_name": {
+            "value": null
+        },
+        "streamingjobs_traffic_speeding_detection_name": {
+            "value": null
+        },
+        "streamingjobs_traffic_speeding_detection_edge_name": {
+            "value": null
+        },
+        "eventhubs_speed_averages_name": {
+            "value": null
+        },
+        "eventhubs_traffic_speed_events_name": {
+            "value": null
+        },
+        "eventhubs_traffic_speed_events_name_1": {
+            "value": null
+        },
+        "hostNameBindings_savanh_traffic.azurewebsites.net_name": {
+            "value": null
+        },
+        "eventhubs_savanh_traffic_suspects_name": {
+            "value": null
+        },
+        "inputs_segment_configs_name": {
+            "value": null
+        },
+        "inputs_iot_speed_events_name": {
+            "value": null
+        },
+        "outputs_speeding_events_name": {
+            "value": null
+        },
+        "outputs_speeding_average_name": {
+            "value": null
+        },
+        "outputs_speed_events_name": {
+            "value": null
+        },
+        "outputs_speeding_events_hub_name": {
+            "value": null
+        },
+        "inputs_segment_configs_name_1": {
+            "value": null
+        },
+        "inputs_iot_speed_events_name_1": {
+            "value": null
+        },
+        "outputs_speed_events_all_name": {
+            "value": null
+        },
+        "AuthorizationRules_RootManageSharedAccessKey_name": {
+            "value": null
+        },
+        "AuthorizationRules_RootManageSharedAccessKey_name_1": {
+            "value": null
+        },
+        "consumergroups_$Default_name": {
+            "value": null
+        },
+        "consumergroups_$Default_name_1": {
+            "value": null
+        },
+        "authorizationRules_timeseries_name": {
+            "value": null
+        },
+        "consumergroups_$Default_name_2": {
+            "value": null
+        },
+        "consumergroups_dashboard_name": {
+            "value": null
+        },
+        "consumergroups_timeseries_name": {
+            "value": null
+        },
+        "consumergroups_$Default_name_3": {
+            "value": null
+        }
+    }
+}
