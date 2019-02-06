@@ -69,7 +69,7 @@ The following configuration values should be specified:
 
 ### Segment configuration
 
-| Json value           	| Default when not provided 	| Description                                                                                                                                                                                                                     	|
+| Json value           	| Default                	| Description                                                                                                                                                                                                                     	|
 |----------------------	|---------------------------	|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
 | segmentId            	| __required__                	| The id of the segment that will be used to match with the specific simulator instance.                                                                                                                                          	|
 | description          	| __empty__                   	| The description or name of the segment. (example: E17 Highway Ghent)                                                                                                                                                            	|
