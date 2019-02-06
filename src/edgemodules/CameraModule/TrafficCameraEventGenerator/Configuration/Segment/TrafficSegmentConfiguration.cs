@@ -15,8 +15,8 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
         public IEnumerable<TimePeriod> RushHours { get; set; }
         public int MaxSpeed { get; set; } = 180;
         public int MinSpeed { get; set; } = 20;
-        public int AverageCarsPerMinute { get; set; }
-        public int SpeedingPercentage { get; set; }
+        public int AverageCarsPerMinute { get; set; } = 30;
+        public int SpeedingPercentage { get; set; } = 2;
         public int CameraDistance { get; set; } = 2000; // 2000m
 
 
