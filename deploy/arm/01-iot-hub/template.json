@@ -2,104 +2,44 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "site_name": {
-            "defaultValue": "savanh-traffic",
-            "type": "String"
-        },
-        "eventgrid_connection_name": {
-            "defaultValue": "azureeventgrid",
-            "type": "String"
-        },
-        "serverfarm_plan_name": {
-            "defaultValue": "WestEuropePlan",
-            "type": "String"
-        },
-        "appinsights_components_name": {
-            "defaultValue": "savanh-traffic",
-            "type": "String"
-        },
-        "config_web_name": {
-            "defaultValue": "web",
-            "type": "String"
-        },
-        "iot_hub_name": {
-            "defaultValue": "savanh-traffic-camera",
-            "type": "String"
-        },
-        "event_grid_topic_name": {
-            "defaultValue": "savanh-real-time-iot",
-            "type": "String"
-        },
-        "storageaccount_name": {
-            "defaultValue": "savanhtraffic",
-            "type": "String"
-        },
-        "event_hub_namespace": {
-            "defaultValue": "traffic-speed-telemetry",
-            "type": "String"
-        },
-        "logic_app_speedticket_creation": {
-            "defaultValue": "traffic-speedticket-creation",
-            "type": "String"
-        },
-        "logic_app_suspectedcar_alerting": {
-            "defaultValue": "traffic-suspectedcar-detection",
-            "type": "String"
-        },
-        "eventhubs_speed_averages_name": {
-            "defaultValue": "speed-averages",
-            "type": "String"
-        },
-        "eventhubs_traffic_speed_events_name": {
-            "defaultValue": "traffic-speed-events",
-            "type": "String"
-        },
-        "eventhubs_traffic_speed_events_name": {
-            "defaultValue": "traffic-speed-events",
-            "type": "String"
-        },
-        "hostname_bindings": {
-            "defaultValue": "savanh-traffic.azurewebsites.net",
-            "type": "String"
-        },
-        "eventhubs_savanh_traffic_suspects_name": {
-            "defaultValue": "savanh-traffic-suspects",
-            "type": "String"
-        },
-        "event_hub_root_key_name": {
-            "defaultValue": "RootManageSharedAccessKey",
-            "type": "String"
-        },
-        "authorizationRules_timeseries_name": {
-            "defaultValue": "timeseries",
-            "type": "String"
-        },
-        "consumergroups_dashboard_name": {
-            "defaultValue": "dashboard",
-            "type": "String"
-        },
-        "consumergroups_timeseries_name": {
-            "defaultValue": "timeseries",
-            "type": "String"
-        },
-        "default_consumergroup_name": {
-            "defaultValue": "$Default",
+        "solution_name":{
+            "defaultValue": "traffic",
             "type": "String"
         }
     },
-    "variables": {},
+    "variables": {
+        "site_name": "[concat(parameters('solution_name'),'')]",
+        "serverfarm_plan_name": "WestEuropePlan",
+        "appinsights_components_name": "[concat(parameters('solution_name'),'-insights')]",
+        "config_web_name": "web",
+        "iot_hub_name": "[concat(parameters('solution_name'),'-iothub')]",
+        "storageaccount_name": "[parameters('solution_name')]",
+        "hostname_bindings": "[concat(parameters('solution_name'),'.azurewebsites.net')]",
+        "event_grid_connection_name": "azureeventgrid",
+        "event_grid_topic_name": "[concat(parameters('solution_name'),'-eventgrid')]",
+        "event_hub_namespace": "[string(concat(parameters('solution_name'),'-eventhub'))]",
+        "event_hub_speed_averages_name": "speed-averages",
+        "event_hub_speed_events_name": "traffic-speed-events",
+        "event_hub_suspects_name": "traffic-suspects",
+        "event_hub_authrule_timeseries": "timeseries",
+        "event_hub_authrule_root": "RootManageSharedAccessKey",
+        "event_hub_cg_dashboard": "dashboard",
+        "event_hub_cg_timeseries": "timeseries",
+        "event_hub_cg_default": "$Default",
+        "logic_app_speedticket_creation": "traffic-speedticket-creation",
+        "logic_app_suspectedcar_alerting": "traffic-suspectedcar-detection"
+    },
     "resources": [
         {
-            "comments": "Generalized from resource: '/subscriptions/b73995e3-caad-4882-8644-f2175789c3ff/resourceGroups/savanh-real-time-iot/providers/Microsoft.Devices/IotHubs/savanh-traffic-camera'.",
             "type": "Microsoft.Devices/IotHubs",
             "sku": {
                 "name": "S1",
                 "tier": "Standard",
                 "capacity": 3
             },
-            "name": "[parameters('iot_hub_name')]",
+            "name": "[string(variables('iot_hub_name'))]",
             "apiVersion": "2018-04-01",
-            "location": "westeurope",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "scale": null,
             "properties": {
@@ -125,7 +65,7 @@
                             "2",
                             "3"
                         ],
-                        "path": "[parameters('iot_hub_name')]",
+                        "path": "[variables('iot_hub_name')]",
                         "endpoint": "sb://iothub-ns-savanh-tra-1175501-34f5efed53.servicebus.windows.net/ TODO"
                     },
                     "operationsMonitoringEvents": {
@@ -137,7 +77,7 @@
                             "2",
                             "3"
                         ],
-                        "path": "[concat(parameters('iot_hub_name'),'-operationmonitoring')]",
+                        "path": "[concat(variables('iot_hub_name'),'-operationmonitoring')]",
                         "endpoint": "sb://iothub-ns-savanh-tra-1175501-34f5efed53.servicebus.windows.net/ TODO"
                     }
                 },
@@ -146,7 +86,8 @@
                         "serviceBusQueues": [],
                         "serviceBusTopics": [],
                         "eventHubs": [],
-                        "storageContainers": [
+                        "storageContainers": [],
+                        "comment": [
                             {
                                 "connectionString": "DefaultEndpointsProtocol=https;AccountName=savanhtraffic;AccountKey=****TODO",
                                 "containerName": "traffic-telemetry",
@@ -155,12 +96,13 @@
                                 "maxChunkSizeInBytes": 104857600,
                                 "encoding": "avro",
                                 "name": "traffic-telemetry",
-                                "subscriptionId": "b73995e3-caad-4882-8644-f2175789c3ff",
+                                "subscriptionId": "[subscription().subscriptionId]",
                                 "resourceGroup": "savanh-real-time-iot"
                             }
                         ]
                     },
-                    "routes": [
+                    "routes": [],
+                    "comments": [
                         {
                             "name": "telemetry-to-blob",
                             "source": "DeviceMessages",
@@ -211,13 +153,11 @@
         },
         {
             "type": "Microsoft.EventGrid/topics",
-            "name": "[parameters('event_grid_topic_name')]",
+            "name": "[string(variables('event_grid_topic_name'))]",
             "apiVersion": "2018-01-01",
-            "location": "westeurope",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
-                "provisioningState": "Succeeded",
-                "endpoint": "[concat('https://', parameters('event_grid_topic_name'),'.westeurope-1.eventgrid.azure.net/api/events')]"
             },
             "dependsOn": []
         },
@@ -228,9 +168,9 @@
                 "tier": "Standard",
                 "capacity": 1
             },
-            "name": "[parameters('event_hub_namespace')]",
+            "name": "[string(variables('event_hub_namespace'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "scale": null,
             "properties": {
@@ -243,9 +183,9 @@
             "comments": "remove this ? todo",
             "type": "microsoft.insights/components",
             "kind": "web",
-            "name": "[parameters('appinsights_components_name')]",
+            "name": "[string(variables('appinsights_components_name'))]",
             "apiVersion": "2015-05-01",
-            "location": "westeurope",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "scale": null,
             "properties": {
@@ -259,9 +199,9 @@
         },
         {
             "type": "Microsoft.Logic/workflows",
-            "name": "[parameters('logic_app_speedticket_creation')]",
+            "name": "[string(variables('logic_app_speedticket_creation'))]",
             "apiVersion": "2017-07-01",
-            "location": "westeurope",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "scale": null,
             "properties": {
@@ -293,15 +233,15 @@
                                                 "Traffic.SpeedingCar"
                                             ]
                                         },
-                                        "topic": "[resourceId('Microsoft.EventGrid/topics', parameters('event_grid_topic_name'))]"
+                                        "topic": "/subscriptions/@{encodeURIComponent(subscription().subscriptionId)}/resourceGroups/@{encodeURIComponent(resourceGroup().name)}/providers/Microsoft.EventGrid/topics/@{concat(parameters('solution_name'),'-eventgrid')}"
                                     }
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['azureeventgrid']['connectionId']"
+                                        "name": "azureeventgrid"
                                     }
                                 },
-                                "path": "/subscriptions/@{encodeURIComponent('b73995e3-caad-4882-8644-f2175789c3ff')}/providers/@{encodeURIComponent('Microsoft.EventGrid.Topics')}/resource/eventSubscriptions",
+                                "path": "/subscriptions/@{encodeURIComponent(subscription().subscriptionId)}/providers/@{encodeURIComponent('Microsoft.EventGrid.Topics')}/resource/eventSubscriptions",
                                 "queries": {
                                     "subscriptionName": "speedticket-creation-subscription",
                                     "x-ms-api-version": "2017-06-15-preview"
@@ -316,24 +256,24 @@
                     "$connections": {
                         "value": {
                             "azureeventgrid": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('eventgrid_connection_name'))]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('event_grid_connection_name'))]",
                                 "connectionName": "azureeventgrid",
-                                "id": "/subscriptions/b73995e3-caad-4882-8644-f2175789c3ff/providers/Microsoft.Web/locations/westeurope/managedApis/azureeventgrid"
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureeventgrid')]"
                             }
                         }
                     }
                 }
             },
             "dependsOn": [
-                "[resourceId('Microsoft.EventGrid/topics', parameters('event_grid_topic_name'))]",
-                "[resourceId('Microsoft.Web/connections', parameters('eventgrid_connection_name'))]"
+                "[resourceId('Microsoft.EventGrid/topics', variables('event_grid_topic_name'))]",
+                "[resourceId('Microsoft.Web/connections', variables('event_grid_connection_name'))]"
             ]
         },
         {
             "type": "Microsoft.Logic/workflows",
-            "name": "[parameters('logic_app_suspectedcar_alerting')]",
+            "name": "[string(variables('logic_app_suspectedcar_alerting'))]",
             "apiVersion": "2017-07-01",
-            "location": "westeurope",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "scale": null,
             "properties": {
@@ -365,15 +305,15 @@
                                                 "Traffic.SuspectedCar"
                                             ]
                                         },
-                                        "topic": "[resourceId('Microsoft.EventGrid/topics', parameters('event_grid_topic_name'))]"
+                                        "topic": "/subscriptions/@{encodeURIComponent(subscription().subscriptionId)}/resourceGroups/@{encodeURIComponent(resourceGroup().name)}/providers/Microsoft.EventGrid/topics/@{concat(parameters('solution_name'),'-eventgrid')}"
                                     }
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['azureeventgrid']['connectionId']"
+                                        "name": "azureeventgrid"
                                     }
                                 },
-                                "path": "/subscriptions/@{encodeURIComponent('b73995e3-caad-4882-8644-f2175789c3ff')}/providers/@{encodeURIComponent('Microsoft.EventGrid.Topics')}/resource/eventSubscriptions",
+                                "path": "/subscriptions/@{encodeURIComponent(subscription().subscriptionId)}/providers/@{encodeURIComponent('Microsoft.EventGrid.Topics')}/resource/eventSubscriptions",
                                 "queries": {
                                     "subscriptionName": "suspectedcar-detection-subscription",
                                     "x-ms-api-version": "2017-06-15-preview"
@@ -388,17 +328,17 @@
                     "$connections": {
                         "value": {
                             "azureeventgrid": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('eventgrid_connection_name'))]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('event_grid_connection_name'))]",
                                 "connectionName": "azureeventgrid",
-                                "id": "/subscriptions/b73995e3-caad-4882-8644-f2175789c3ff/providers/Microsoft.Web/locations/westeurope/managedApis/azureeventgrid"
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureeventgrid')]"
                             }
                         }
                     }
                 }
             },
             "dependsOn": [
-                "[resourceId('Microsoft.EventGrid/topics', parameters('event_grid_topic_name'))]",
-                "[resourceId('Microsoft.Web/connections', parameters('eventgrid_connection_name'))]"
+                "[resourceId('Microsoft.EventGrid/topics', variables('event_grid_topic_name'))]",
+                "[resourceId('Microsoft.Web/connections', variables('event_grid_connection_name'))]"
             ]
         },
         {
@@ -408,9 +348,9 @@
                 "tier": "Standard"
             },
             "kind": "StorageV2",
-            "name": "[parameters('storageaccount_name')]",
+            "name": "[variables('storageaccount_name')]",
             "apiVersion": "2018-07-01",
-            "location": "westeurope",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "scale": null,
             "properties": {
@@ -438,15 +378,15 @@
         },
         {
             "type": "Microsoft.Web/connections",
-            "name": "[parameters('eventgrid_connection_name')]",
+            "name": "[variables('event_grid_connection_name')]",
             "apiVersion": "2016-06-01",
-            "location": "westeurope",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "displayName": "sam.vanhoutte@marchitec.be//TODO",
                 "customParameterValues": {},
                 "api": {
-                    "id": "[concat('/subscriptions/b73995e3-caad-4882-8644-f2175789c3ff/providers/Microsoft.Web/locations/westeurope/managedApis/', parameters('eventgrid_connection_name'))]"
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', variables('event_grid_connection_name'))]"
                 }
             },
             "dependsOn": []
@@ -461,12 +401,12 @@
                 "capacity": 0
             },
             "kind": "functionapp",
-            "name": "[parameters('serverfarm_plan_name')]",
+            "name": "[variables('serverfarm_plan_name')]",
             "apiVersion": "2016-09-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
-                "name": "[parameters('serverfarm_plan_name')]",
+                "name": "[variables('serverfarm_plan_name')]",
                 "workerTierName": null,
                 "adminSiteName": null,
                 "hostingEnvironmentProfile": null,
@@ -480,15 +420,15 @@
         {
             "type": "Microsoft.Web/sites",
             "kind": "functionapp",
-            "name": "[parameters('site_name')]",
+            "name": "[variables('site_name')]",
             "apiVersion": "2016-08-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "enabled": true,
                 "hostNameSslStates": [
                     {
-                        "name": "[concat(parameters('site_name'),'.azurewebsites.net')]",
+                        "name": "[concat(variables('site_name'),'.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "virtualIP": null,
                         "thumbprint": null,
@@ -496,7 +436,7 @@
                         "hostType": "Standard"
                     },
                     {
-                        "name": "[concat(parameters('site_name'),'.scm.azurewebsites.net')]",
+                        "name": "[concat(variables('site_name'),'.scm.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "virtualIP": null,
                         "thumbprint": null,
@@ -504,7 +444,7 @@
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarm_plan_name'))]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverfarm_plan_name'))]",
                 "reserved": false,
                 "siteConfig": null,
                 "scmSiteAlsoStopped": false,
@@ -518,14 +458,14 @@
                 "httpsOnly": false
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarm_plan_name'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('serverfarm_plan_name'))]"
             ]
         },
         {
             "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('event_hub_root_key_name'))]",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_authrule_root'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "rights": [
@@ -535,14 +475,14 @@
                 ]
             },
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]"
             ]
         },
         {
             "type": "Microsoft.EventHub/namespaces/eventhubs",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'))]",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_speed_events_name'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "messageRetentionInDays": 1,
@@ -550,50 +490,50 @@
                 "status": "Active"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]"
             ]
         },
         {
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'), '/', parameters('default_consumergroup_name'))]",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_speed_events_name'), '/', variables('event_hub_cg_default'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {},
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
-                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_traffic_speed_events_name'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('event_hub_namespace'), variables('event_hub_speed_events_name'))]"
             ]
         },
         {
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'), '/', parameters('consumergroups_dashboard_name'))]",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_speed_events_name'), '/', variables('event_hub_cg_dashboard'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {},
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
-                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_traffic_speed_events_name'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('event_hub_namespace'), variables('event_hub_speed_events_name'))]"
             ]
         },
         {
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'), '/', parameters('consumergroups_timeseries_name'))]",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_speed_events_name'), '/', variables('event_hub_cg_timeseries'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {},
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
-                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_traffic_speed_events_name'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('event_hub_namespace'), variables('event_hub_speed_events_name'))]"
             ]
         },
         {
             "type": "Microsoft.EventHub/namespaces/eventhubs",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_savanh_traffic_suspects_name'))]",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_suspects_name'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "messageRetentionInDays": 1,
@@ -601,14 +541,14 @@
                 "status": "Active"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]"
             ]
         },
         {
             "type": "Microsoft.EventHub/namespaces/eventhubs",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_speed_averages_name'))]",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_speed_averages_name'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "messageRetentionInDays": 1,
@@ -616,40 +556,26 @@
                 "status": "Active"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
-            ]
-        },
-        {
-            "type": "Microsoft.EventHub/namespaces/eventhubs",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'))]",
-            "apiVersion": "2017-04-01",
-            "location": "West Europe",
-            "scale": null,
-            "properties": {
-                "messageRetentionInDays": 1,
-                "partitionCount": 4,
-                "status": "Active"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]"
             ]
         },
         {
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_savanh_traffic_suspects_name'), '/', parameters('default_consumergroup_name'))]",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_suspects_name'), '/', variables('event_hub_cg_default'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {},
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
-                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_savanh_traffic_suspects_name'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('event_hub_namespace'), variables('event_hub_suspects_name'))]"
             ]
         },
         {
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_speed_averages_name'), '/', parameters('authorizationRules_timeseries_name'))]",
+            "type": "Microsoft.EventHub/namespaces/eventhubs/authorizationRules",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_speed_averages_name'), '/', variables('event_hub_authrule_timeseries'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "rights": [
@@ -659,39 +585,27 @@
                 ]
             },
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
-                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_speed_averages_name'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('event_hub_namespace'), variables('event_hub_speed_averages_name'))]"
             ]
         },
         {
             "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_speed_averages_name'), '/', parameters('default_consumergroup_name'))]",
+            "name": "[concat(variables('event_hub_namespace'), '/', variables('event_hub_speed_averages_name'), '/', variables('event_hub_cg_default'))]",
             "apiVersion": "2017-04-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {},
             "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
-                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_speed_averages_name'))]"
-            ]
-        },
-        {
-            "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
-            "name": "[concat(parameters('event_hub_namespace'), '/', parameters('eventhubs_traffic_speed_events_name'), '/', parameters('default_consumergroup_name'))]",
-            "apiVersion": "2017-04-01",
-            "location": "West Europe",
-            "scale": null,
-            "properties": {},
-            "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('event_hub_namespace'))]",
-                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('event_hub_namespace'), parameters('eventhubs_traffic_speed_events_name'))]"
+                "[resourceId('Microsoft.EventHub/namespaces', variables('event_hub_namespace'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('event_hub_namespace'), variables('event_hub_speed_averages_name'))]"
             ]
         },
         {
             "type": "Microsoft.Web/sites/config",
-            "name": "[concat(parameters('site_name'), '/', parameters('config_web_name'))]",
+            "name": "[concat(variables('site_name'), '/', variables('config_web_name'))]",
             "apiVersion": "2016-08-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "numberOfWorkers": 1,
@@ -808,14 +722,14 @@
                 "reservedInstanceCount": 0
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('site_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('site_name'))]"
             ]
         },
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
-            "name": "[concat(parameters('site_name'), '/', parameters('hostname_bindings'))]",
+            "name": "[concat(variables('site_name'), '/', variables('hostname_bindings'))]",
             "apiVersion": "2016-08-01",
-            "location": "West Europe",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "siteName": "savanh-traffic",
@@ -823,7 +737,7 @@
                 "hostNameType": "Verified"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('site_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('site_name'))]"
             ]
         }
     ]
