@@ -1,0 +1,153 @@
+
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "solution_name":{
+            "defaultValue": "traffic",
+            "type": "String"
+        },
+        "asa_edge_local_ref_file":{
+            "defaultValue": "D:\\iot-edge\\asa\\segment-config.json",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "site_name": "[concat(parameters('solution_name'),'')]",
+        "function_trigger_name": "EventGridTrigger",
+        "iot_hub_name": "[concat(parameters('solution_name'),'-iothub')]",
+        "storageaccount_name": "[parameters('solution_name')]",
+        "event_hub_namespace": "[string(concat(parameters('solution_name'),'-eventhub'))]",
+        "event_hub_speed_averages_name": "speed-averages",
+        "event_hub_speed_events_name": "traffic-speed-events",
+        "event_hub_authrule_root": "RootManageSharedAccessKey",
+        "asa_job_speeddetection_name": "traffic-speeding-detection",
+        "asa_job_speeddetection_edge_name": "traffic-speeding-detection-edge",
+        "asa_input_segment_config": "segment-configs",
+        "asa_input_iot_speed_events":  "iot-speed-events",
+        "asa_output_speeding_events": "speeding-events",
+        "asa_output_speeding_average":  "speeding-average",
+        "asa_output_speed_events":  "speed-events",
+        "asa_output_speed_all_events":  "speed-events-all"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs",
+            "name": "[variables('asa_job_speeddetection_edge_name')]",
+            "apiVersion": "2016-03-01",
+            "location": "[resourceGroup().location]",
+            "scale": null,
+            "properties": {
+                "sku": {
+                    "name": "Standard"
+                },
+                "jobType": "Edge",
+                "eventsOutOfOrderPolicy": "Adjust",
+                "outputErrorPolicy": "Stop",
+                "eventsOutOfOrderMaxDelayInSeconds": 0,
+                "eventsLateArrivalMaxDelayInSeconds": 5,
+                "dataLocale": "en-US",
+                "compatibilityLevel": "1.0"
+            },
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs/inputs",
+            "name": "[concat(variables('asa_job_speeddetection_edge_name'), '/', variables('asa_input_iot_speed_events'))]",
+            "apiVersion": "2016-03-01",
+            "scale": null,
+            "properties": {
+                "type": "Stream",
+                "datasource": {
+                    "type": "GatewayMessageBus",
+                    "properties": {}
+                },
+                "compression": {
+                    "type": "None"
+                },
+                "serialization": {
+                    "type": "Json",
+                    "properties": {
+                        "encoding": "UTF8"
+                    }
+                },
+                "etag": "a429bcab-a2d5-486a-8a2f-8ba4791c27c8"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_edge_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs/inputs",
+            "name": "[concat(variables('asa_job_speeddetection_edge_name'), '/', variables('asa_input_segment_config'))]",
+            "apiVersion": "2016-03-01",
+            "scale": null,
+            "properties": {
+                "type": "Reference",
+                "datasource": {
+                    "type": "File",
+                    "properties": {
+                        "path": "[parameters('asa_edge_local_ref_file')]"
+                    }
+                },
+                "compression": {
+                    "type": "None"
+                },
+                "serialization": {
+                    "type": "Json",
+                    "properties": {
+                        "encoding": "UTF8"
+                    }
+                },
+                "etag": "d41aba92-6b71-4c41-b905-6e6bdda37ea0"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_edge_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
+            "name": "[concat(variables('asa_job_speeddetection_edge_name'), '/', variables('asa_output_speed_events'))]",
+            "apiVersion": "2016-03-01",
+            "scale": null,
+            "properties": {
+                "datasource": {
+                    "type": "GatewayMessageBus",
+                    "properties": {}
+                },
+                "serialization": {
+                    "type": "Json",
+                    "properties": {
+                        "encoding": "UTF8",
+                        "format": "Array"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_edge_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
+            "name": "[concat(variables('asa_job_speeddetection_edge_name'), '/', variables('asa_output_speed_all_events'))]",
+            "apiVersion": "2016-03-01",
+            "scale": null,
+            "properties": {
+                "datasource": {
+                    "type": "GatewayMessageBus",
+                    "properties": {}
+                },
+                "serialization": {
+                    "type": "Json",
+                    "properties": {
+                        "encoding": "UTF8",
+                        "format": "LineSeparated"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_edge_name'))]"
+            ]
+        }
+    ]
+}

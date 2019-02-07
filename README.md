@@ -17,6 +17,7 @@ This will project will be supplied with all relevant arm templates to deploy eve
 
 # Documentation
 
+- [Automated deployment of the scenario](./docs/scenario-deploy.md)
 - [Using the public camera simulator container image](./docs/docker-camera-simulator.md)
 - [Building and configurating the Azure IoT Edge components](./docs/azure-iot-edge.md)
 
