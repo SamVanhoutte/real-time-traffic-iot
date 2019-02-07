@@ -9,7 +9,7 @@
     },
     "variables": {
         "site_name": "[concat(parameters('solution_name'),'')]",
-        "serverfarm_plan_name": "WestEuropePlan",
+        "serverfarm_plan_name": "[concat(parameters('solution_name'), '-plan')]",
         "appinsights_components_name": "[concat(parameters('solution_name'),'-insights')]",
         "config_web_name": "web",
         "iot_hub_name": "[concat(parameters('solution_name'),'-iothub')]",
@@ -65,8 +65,7 @@
                             "2",
                             "3"
                         ],
-                        "path": "[variables('iot_hub_name')]",
-                        "endpoint": "sb://iothub-ns-savanh-tra-1175501-34f5efed53.servicebus.windows.net/ TODO"
+                        "path": "[variables('iot_hub_name')]"
                     },
                     "operationsMonitoringEvents": {
                         "retentionTimeInDays": 1,
@@ -77,8 +76,7 @@
                             "2",
                             "3"
                         ],
-                        "path": "[concat(variables('iot_hub_name'),'-operationmonitoring')]",
-                        "endpoint": "sb://iothub-ns-savanh-tra-1175501-34f5efed53.servicebus.windows.net/ TODO"
+                        "path": "[concat(variables('iot_hub_name'),'-operationmonitoring')]"
                     }
                 },
                 "routing": {
@@ -86,10 +84,9 @@
                         "serviceBusQueues": [],
                         "serviceBusTopics": [],
                         "eventHubs": [],
-                        "storageContainers": [],
-                        "comment": [
+                        "storageContainers": [
                             {
-                                "connectionString": "DefaultEndpointsProtocol=https;AccountName=savanhtraffic;AccountKey=****TODO",
+                                "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageaccount_name'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageaccount_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
                                 "containerName": "traffic-telemetry",
                                 "fileNameFormat": "{iothub}-{partition}-{YYYY}-{MM}/{DD}-{HH}-{mm}",
                                 "batchFrequencyInSeconds": 200,
@@ -97,12 +94,11 @@
                                 "encoding": "avro",
                                 "name": "traffic-telemetry",
                                 "subscriptionId": "[subscription().subscriptionId]",
-                                "resourceGroup": "savanh-real-time-iot"
+                                "resourceGroup": "[resourceGroup().name]"
                             }
                         ]
                     },
-                    "routes": [],
-                    "comments": [
+                    "routes": [
                         {
                             "name": "telemetry-to-blob",
                             "source": "DeviceMessages",
@@ -110,7 +106,7 @@
                             "endpointNames": [
                                 "traffic-telemetry"
                             ],
-                            "isEnabled": true
+                            "isEnabled": false
                         }
                     ],
                     "fallbackRoute": {
@@ -149,7 +145,9 @@
                 },
                 "features": "None"
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageaccount_name'))]"
+            ]
         },
         {
             "type": "Microsoft.EventGrid/topics",
@@ -180,7 +178,6 @@
             "dependsOn": []
         },
         {
-            "comments": "remove this ? todo",
             "type": "microsoft.insights/components",
             "kind": "web",
             "name": "[string(variables('appinsights_components_name'))]",
@@ -374,6 +371,29 @@
                 },
                 "accessTier": "Hot"
             },
+            "resources": [
+                {
+                  "type": "blobServices/containers",
+                  "apiVersion": "2018-03-01-preview",
+                  "name": "default/traffic-telemetry",
+                  "dependsOn": [
+                    "[variables('storageaccount_name')]"
+                  ],
+                  "properties": {
+                    "publicAccess": "None"
+                  }
+                },
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2018-03-01-preview",
+                    "name": "default/traffic-config",
+                    "dependsOn": [
+                      "[variables('storageaccount_name')]"
+                    ],
+                    "properties": {
+                      "publicAccess": "None"
+                    }
+                  }],
             "dependsOn": []
         },
         {
@@ -383,7 +403,7 @@
             "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
-                "displayName": "sam.vanhoutte@marchitec.be//TODO",
+                "displayName": "[variables('event_grid_connection_name')]",
                 "customParameterValues": {},
                 "api": {
                     "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', variables('event_grid_connection_name'))]"
@@ -631,7 +651,7 @@
                 "httpLoggingEnabled": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$savanh-traffic",
+                "publishingUsername": "$traffic-demo",
                 "publishingPassword": null,
                 "appSettings": null,
                 "azureStorageAccounts": {},
@@ -732,7 +752,7 @@
             "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
-                "siteName": "savanh-traffic",
+                "siteName": "[variables('site_name')]",
                 "domainId": null,
                 "hostNameType": "Verified"
             },
