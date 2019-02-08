@@ -2,13 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "solution_name":{
+        "solution_name": {
             "defaultValue": "traffic",
             "type": "String"
         }
     },
     "variables": {
-        "site_name": "[concat(parameters('solution_name'),'')]",
+        "function_app_name": "[concat(parameters('solution_name'),'')]",
         "serverfarm_plan_name": "[concat(parameters('solution_name'), '-plan')]",
         "appinsights_components_name": "[concat(parameters('solution_name'),'-insights')]",
         "config_web_name": "web",
@@ -155,8 +155,7 @@
             "apiVersion": "2018-01-01",
             "location": "[resourceGroup().location]",
             "scale": null,
-            "properties": {
-            },
+            "properties": {},
             "dependsOn": []
         },
         {
@@ -373,27 +372,28 @@
             },
             "resources": [
                 {
-                  "type": "blobServices/containers",
-                  "apiVersion": "2018-03-01-preview",
-                  "name": "default/traffic-telemetry",
-                  "dependsOn": [
-                    "[variables('storageaccount_name')]"
-                  ],
-                  "properties": {
-                    "publicAccess": "None"
-                  }
+                    "type": "blobServices/containers",
+                    "apiVersion": "2018-03-01-preview",
+                    "name": "default/traffic-telemetry",
+                    "dependsOn": [
+                        "[variables('storageaccount_name')]"
+                    ],
+                    "properties": {
+                        "publicAccess": "None"
+                    }
                 },
                 {
                     "type": "blobServices/containers",
                     "apiVersion": "2018-03-01-preview",
                     "name": "default/traffic-config",
                     "dependsOn": [
-                      "[variables('storageaccount_name')]"
+                        "[variables('storageaccount_name')]"
                     ],
                     "properties": {
-                      "publicAccess": "None"
+                        "publicAccess": "None"
                     }
-                  }],
+                }
+            ],
             "dependsOn": []
         },
         {
@@ -440,7 +440,7 @@
         {
             "type": "Microsoft.Web/sites",
             "kind": "functionapp",
-            "name": "[variables('site_name')]",
+            "name": "[variables('function_app_name')]",
             "apiVersion": "2016-08-01",
             "location": "[resourceGroup().location]",
             "scale": null,
@@ -448,7 +448,7 @@
                 "enabled": true,
                 "hostNameSslStates": [
                     {
-                        "name": "[concat(variables('site_name'),'.azurewebsites.net')]",
+                        "name": "[concat(variables('function_app_name'),'.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "virtualIP": null,
                         "thumbprint": null,
@@ -456,7 +456,7 @@
                         "hostType": "Standard"
                     },
                     {
-                        "name": "[concat(variables('site_name'),'.scm.azurewebsites.net')]",
+                        "name": "[concat(variables('function_app_name'),'.scm.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "virtualIP": null,
                         "thumbprint": null,
@@ -475,8 +475,22 @@
                 "containerSize": 1536,
                 "dailyMemoryTimeQuota": 0,
                 "cloningInfo": null,
-                "httpsOnly": false
+                "httpsOnly": false,
+                "azureWebJobsSecretStorageType": "Files"
             },
+            "resources": [
+                {
+                    "apiVersion": "2015-08-01",
+                    "name": "appsettings",
+                    "type": "config",
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/Sites/', variables('function_app_name'))]"
+                    ],
+                    "properties": {
+                        "AzureWebJobsSecretStorageType": "Files"
+                    }
+                }
+            ],
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('serverfarm_plan_name'))]"
             ]
@@ -623,7 +637,7 @@
         },
         {
             "type": "Microsoft.Web/sites/config",
-            "name": "[concat(variables('site_name'), '/', variables('config_web_name'))]",
+            "name": "[concat(variables('function_app_name'), '/', variables('config_web_name'))]",
             "apiVersion": "2016-08-01",
             "location": "[resourceGroup().location]",
             "scale": null,
@@ -742,22 +756,22 @@
                 "reservedInstanceCount": 0
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('site_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('function_app_name'))]"
             ]
         },
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
-            "name": "[concat(variables('site_name'), '/', variables('hostname_bindings'))]",
+            "name": "[concat(variables('function_app_name'), '/', variables('hostname_bindings'))]",
             "apiVersion": "2016-08-01",
             "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
-                "siteName": "[variables('site_name')]",
+                "siteName": "[variables('function_app_name')]",
                 "domainId": null,
                 "hostNameType": "Verified"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('site_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('function_app_name'))]"
             ]
         }
     ]
