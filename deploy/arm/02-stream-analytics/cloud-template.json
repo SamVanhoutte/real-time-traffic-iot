@@ -1,206 +1,284 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "solution_name": {
-            "defaultValue": "traffic",
-            "type": "String"
-        }
-    },
-    "variables": {
-        "site_name": "[concat(parameters('solution_name'),'')]",
-        "function_trigger_name": "EventGridTrigger",
-        "iot_hub_name": "[concat(parameters('solution_name'),'-iothub')]",
-        "storageaccount_name": "[parameters('solution_name')]",
-        "event_hub_namespace": "[string(concat(parameters('solution_name'),'-eventhub'))]",
-        "event_hub_speed_averages_name": "speed-averages",
-        "event_hub_speed_events_name": "traffic-speed-events",
-        "event_hub_authrule_root": "RootManageSharedAccessKey",
-        "asa_job_speeddetection_name": "traffic-speeding-detection",
-        "asa_input_segment_config": "segment-configs",
-        "asa_input_iot_speed_events": "iot-speed-events",
-        "asa_output_speeding_events": "speeding-events",
-        "asa_output_speeding_average": "speeding-average",
-    },
-    "resources": [
-        {
-            "type": "Microsoft.StreamAnalytics/streamingjobs",
-            "name": "[variables('asa_job_speeddetection_name')]",
-            "apiVersion": "2016-03-01",
-            "location": "[resourceGroup().location]",
-            "scale": null,
-            "properties": {
-                "sku": {
-                    "name": "Standard"
-                },
-                "eventsOutOfOrderPolicy": "Drop",
-                "outputErrorPolicy": "Drop",
-                "eventsOutOfOrderMaxDelayInSeconds": 20,
-                "eventsLateArrivalMaxDelayInSeconds": 20,
-                "dataLocale": "en-US",
-                "compatibilityLevel": "1.0",
-                "inputs": [
-                    {
-                        "type": "Microsoft.StreamAnalytics/streamingjobs/inputs",
-                        "name": "[variables('asa_input_iot_speed_events')]",
-                        "apiVersion": "2016-03-01",
-                        "scale": null,
-                        "properties": {
-                            "type": "Stream",
-                            "datasource": {
-                                "type": "Microsoft.Devices/IotHubs",
-                                "properties": {
-                                    "iotHubNamespace": "[variables('iot_hub_name')]",
-                                    "sharedAccessPolicyName": "service",
-                                    "sharedAccessPolicyKey": "[listKeys(resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('iot_hub_name'), 'service'), '2016-02-03').primaryKey]",
-                                    "endpoint": "messages/events",
-                                    "consumerGroupName": "StreamAnalytics"
-                                }
-                            },
-                            "compression": {
-                                "type": "None"
-                            },
-                            "serialization": {
-                                "type": "Json",
-                                "properties": {
-                                    "encoding": "UTF8"
-                                }
-                            },
-                            "transformation": {
-                                "name": "Transformation",
-                                "properties": {
-                                    "streamingUnits": 1,
-                                    "query": "SELECT\r\n    *\r\nINTO\r\n    [PBI]\r\nFROM\r\n    [IoTHub]"
-                                }
-                            }
-                        },
-                        "dependsOn": [
-                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
-                        ]
-                    },
-                    {
-                        "type": "Microsoft.StreamAnalytics/streamingjobs/inputs",
-                        "name": "[variables('asa_input_segment_config')]",
-                        "apiVersion": "2016-03-01",
-                        "scale": null,
-                        "properties": {
-                            "type": "Reference",
-                            "datasource": {
-                                "type": "Microsoft.Storage/Blob",
-                                "properties": {
-                                    "blobName": "traffic-config",
-                                    "storageAccounts": [
-                                        {
-                                            "accountName": "[variables('storageaccount_name')]",
-                                            "accountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageaccount_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
-                                        }
-                                    ],
-                                    "container": "traffic-config",
-                                    "pathPattern": "[concat(variables('asa_input_segment_config'),'.json')]",
-                                    "dateFormat": "yyyy/MM/dd",
-                                    "timeFormat": "HH"
-                                }
-                            },
-                            "compression": {
-                                "type": "None"
-                            },
-                            "serialization": {
-                                "type": "Json",
-                                "properties": {
-                                    "encoding": "UTF8"
-                                }
-                            },
-                            "etag": "89fe6f61-a61f-4bf6-beec-4643a72b5941"
-                        },
-                        "dependsOn": [
-                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
-                        ]
-                    }
-                ],
-                "transformation": {
-                    "name": "Transformation",
-                    "properties": {
-                        "streamingUnits": 1,
-                        "query": "SELECT * FROM TEST INTO SPEED"
-                    }
-                },
-                "outputs": [
-                    {
-                        "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
-                        "name": "[variables('asa_output_speeding_average')]",
-                        "apiVersion": "2016-03-01",
-                        "scale": null,
-                        "properties": {
-                            "datasource": {
-                                "type": "Microsoft.ServiceBus/EventHub",
-                                "properties": {
-                                    "eventHubName": "[variables('event_hub_speed_events_name')]",
-                                    "serviceBusNamespace": "[variables('event_hub_namespace')]",
-                                    "sharedAccessPolicyName": "[variables('event_hub_authrule_root')]",
-                                    "sharedAccessPolicyKey": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('event_hub_namespace'), variables('event_hub_authrule_root')),'2017-04-01').primaryKey]"
-                                }
-                            },
-                            "serialization": {
-                                "type": "Json",
-                                "properties": {
-                                    "encoding": "UTF8",
-                                    "format": "LineSeparated"
-                                }
-                            }
-                        },
-                        "dependsOn": [
-                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
-                        ]
-                    },
-                    {
-                        "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
-                        "name": "[variables('asa_output_speeding_events')]",
-                        "apiVersion": "2016-03-01",
-                        "scale": null,
-                        "properties": {
-                            "datasource": {
-                                "type": "Microsoft.AzureFunction",
-                                "properties": {
-                                    "functionAppName": "[variables('site_name')]",
-                                    "functionName": "[variables('function_trigger_name')]",
-                                    "apiKey": "[listsecrets(resourceId('Microsoft.Web/sites/functions', variables('site_name'), variables('function_trigger_name')),'2015-08-01').key]"
-                                }
-                            }
-                        },
-                        "dependsOn": [
-                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
-                        ]
-                    },
-                    {
-                        "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
-                        "name": "[variables('event_hub_speed_events_name')]",
-                        "apiVersion": "2016-03-01",
-                        "scale": null,
-                        "properties": {
-                            "datasource": {
-                                "type": "Microsoft.ServiceBus/EventHub",
-                                "properties": {
-                                    "eventHubName": "[variables('event_hub_speed_averages_name')]",
-                                    "serviceBusNamespace": "[variables('event_hub_namespace')]",
-                                    "sharedAccessPolicyName": "[variables('event_hub_authrule_root')]",
-                                    "sharedAccessPolicyKey": "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('event_hub_namespace'), variables('event_hub_authrule_root')),'2017-04-01').primaryKey]"
-                                }
-                            },
-                            "serialization": {
-                                "type": "Json",
-                                "properties": {
-                                    "encoding": "UTF8",
-                                    "format": "LineSeparated"
-                                }
-                            }
-                        },
-                        "dependsOn": [
-                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
-                        ]
-                    }
-                ]
-            },
-            "dependsOn": []
-        }
-    ]
+    "$schema":  "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    "parameters":  {
+                       "solution_name":  {
+                                             "defaultValue":  "traffic",
+                                             "type":  "String"
+                                         }
+                   },
+    "variables":  {
+                      "site_name":  "[concat(parameters('solution_name'),'')]",
+                      "function_trigger_name":  "EventGridTrigger",
+                      "iot_hub_name":  "[concat(parameters('solution_name'),'-iothub')]",
+                      "storageaccount_name":  "[parameters('solution_name')]",
+                      "event_hub_namespace":  "[string(concat(parameters('solution_name'),'-eventhub'))]",
+                      "event_hub_speed_averages_name":  "speed-averages",
+                      "event_hub_speed_events_name":  "traffic-speed-events",
+                      "event_hub_authrule_root":  "RootManageSharedAccessKey",
+                      "asa_job_speeddetection_name":  "traffic-speeding-detection",
+                      "asa_input_segment_config":  "segment-configs",
+                      "asa_input_iot_speed_events":  "iot-speed-events",
+                      "asa_output_speeding_events":  "speeding-events",
+                      "asa_output_speeding_events_hub":  "speeding-events-hub",
+                      "asa_output_speeding_average":  "speeding-average"
+                  },
+    "resources":  [
+                      {
+                          "type":  "Microsoft.StreamAnalytics/streamingjobs",
+                          "name":  "[variables('asa_job_speeddetection_name')]",
+                          "apiVersion":  "2016-03-01",
+                          "location":  "[resourceGroup().location]",
+                          "scale":  null,
+                          "properties":  {
+                                             "sku":  {
+                                                         "name":  "Standard"
+                                                     },
+                                             "eventsOutOfOrderPolicy":  "Drop",
+                                             "outputErrorPolicy":  "Drop",
+                                             "eventsOutOfOrderMaxDelayInSeconds":  20,
+                                             "eventsLateArrivalMaxDelayInSeconds":  20,
+                                             "dataLocale":  "en-US",
+                                             "compatibilityLevel":  "1.0",
+                                             "inputs":  [
+                                                            {
+                                                                "type":  "Microsoft.StreamAnalytics/streamingjobs/inputs",
+                                                                "name":  "[variables('asa_input_iot_speed_events')]",
+                                                                "apiVersion":  "2016-03-01",
+                                                                "scale":  null,
+                                                                "properties":  {
+                                                                                   "type":  "Stream",
+                                                                                   "datasource":  {
+                                                                                                      "type":  "Microsoft.Devices/IotHubs",
+                                                                                                      "properties":  {
+                                                                                                                         "iotHubNamespace":  "[variables('iot_hub_name')]",
+                                                                                                                         "sharedAccessPolicyName":  "service",
+                                                                                                                         "sharedAccessPolicyKey":  "[listKeys(resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('iot_hub_name'), 'service'), '2016-02-03').primaryKey]",
+                                                                                                                         "endpoint":  "messages/events",
+                                                                                                                         "consumerGroupName":  "StreamAnalytics"
+                                                                                                                     }
+                                                                                                  },
+                                                                                   "compression":  {
+                                                                                                       "type":  "None"
+                                                                                                   },
+                                                                                   "serialization":  {
+                                                                                                         "type":  "Json",
+                                                                                                         "properties":  {
+                                                                                                                            "encoding":  "UTF8"
+                                                                                                                        }
+                                                                                                     },
+                                                                                   "transformation":  {
+                                                                                                          "name":  "Transformation",
+                                                                                                          "properties":  {
+                                                                                                                             "streamingUnits":  1,
+                                                                                                                             "query":  "SELECT
+    *
+INTO
+    [PBI
+                                    ]
+FROM
+    [IoTHub
+                                    ]"
+                                                                                                                         }
+                                                                                                      }
+                                                                               },
+                                                                "dependsOn":  [
+                                                                                  "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
+                                                                              ]
+                                                            },
+                                                            {
+                                                                "type":  "Microsoft.StreamAnalytics/streamingjobs/inputs",
+                                                                "name":  "[variables('asa_input_segment_config')]",
+                                                                "apiVersion":  "2016-03-01",
+                                                                "scale":  null,
+                                                                "properties":  {
+                                                                                   "type":  "Reference",
+                                                                                   "datasource":  {
+                                                                                                      "type":  "Microsoft.Storage/Blob",
+                                                                                                      "properties":  {
+                                                                                                                         "blobName":  "traffic-config",
+                                                                                                                         "storageAccounts":  [
+                                                                                                                                                 {
+                                                                                                                                                     "accountName":  "[variables('storageaccount_name')]",
+                                                                                                                                                     "accountKey":  "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageaccount_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+                                                                                                                                                 }
+                                                                                                                                             ],
+                                                                                                                         "container":  "traffic-config",
+                                                                                                                         "pathPattern":  "[concat(variables('asa_input_segment_config'),'.json')]",
+                                                                                                                         "dateFormat":  "yyyy/MM/dd",
+                                                                                                                         "timeFormat":  "HH"
+                                                                                                                     }
+                                                                                                  },
+                                                                                   "compression":  {
+                                                                                                       "type":  "None"
+                                                                                                   },
+                                                                                   "serialization":  {
+                                                                                                         "type":  "Json",
+                                                                                                         "properties":  {
+                                                                                                                            "encoding":  "UTF8"
+                                                                                                                        }
+                                                                                                     },
+                                                                                   "etag":  "89fe6f61-a61f-4bf6-beec-4643a72b5941"
+                                                                               },
+                                                                "dependsOn":  [
+                                                                                  "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
+                                                                              ]
+                                                            }
+                                                        ],
+                                             "transformation":  {
+                                                                    "name":  "Transformation",
+                                                                    "properties":  {
+                                                                                       "streamingUnits":  1,
+                                                                                       "query":  "CREATE  TABLE [iot-speed-events]
+(
+    TrajectId           nvarchar(max),
+    CameraId            nvarchar(max),
+    EventTime           datetime,
+    Lane                bigint,
+    Country             nvarchar(max),
+    LicensePlate        nvarchar(max),
+    Make                nvarchar(max),
+    Color               nvarchar(max)
+)
+CREATE  TABLE [segment-configs]
+(
+    segmentId           nvarchar(max),
+    numberOfLanes       bigint,
+    speedLimit          bigint,
+    rushHours           nvarchar(max),
+    maxSpeed            bigint,
+    minSpeed            bigint,
+    averageCarsPerMinute bigint,
+    speedingPercentage  bigint,
+    cameraDistance      bigint
+)
+
+WITH SpeedMeasurement AS ( 
+    SELECT  SpeedEvents.TrajectId, SegmentConfigs.cameraDistance as CameraDistance,
+            SegmentConfigs.speedLimit as SpeedLimit, SpeedEvents.LicensePlate, 
+            SpeedEvents.Make, SpeedEvents.Color, SpeedEvents.Country, 
+            MIN(SpeedEvents.Lane) as MinimumLane, 
+            MAX(SpeedEvents.EventTime) as ExitTime,
+            MIN(CAST(SpeedEvents.EventTime as datetime)) as FirstEvent, 
+            MAX(CAST(SpeedEvents.EventTime as datetime)) as LastEvent, 
+            Count(*) as eventcount
+    FROM    [iot-speed-events] SpeedEvents TIMESTAMP BY EventTime
+    INNER   JOIN [segment-configs] SegmentConfigs ON SpeedEvents.TrajectId = SegmentConfigs.segmentId
+    GROUP   BY SpeedEvents.TrajectId, SegmentConfigs.cameraDistance, SegmentConfigs.speedLimit, SpeedEvents.LicensePlate, 
+            SpeedEvents.Make, SpeedEvents.Color, SpeedEvents.Country, SlidingWindow(minute, 20)
+    HAVING  COUNT(*) > 1 AND DATEDIFF(s, FirstEvent, LastEvent) > 1
+) 
+
+SELECT  TrajectId, 
+        CASE DATEDIFF(s, FirstEvent, LastEvent) 
+            WHEN 0 THEN SpeedLimit 
+            ELSE(CameraDistance/DATEDIFF(s, FirstEvent, LastEvent)*3.6) 
+        END AS Speed, 
+        LastEvent as detectiontime, SpeedLimit,  LicensePlate, DATEDIFF(s, FirstEvent, LastEvent) as Duration, Make, Color, Country, MinimumLane as Lane
+INTO    [speeding-events]
+FROM    SpeedMeasurement
+WHERE   DATEDIFF(s, FirstEvent, LastEvent) < 
+        CASE SpeedLimit
+            WHEN 0 THEN 0 
+            ELSE(CameraDistance/((SpeedLimit*1000)/3600))
+        END 
+        -- 2000m at 120k/h should result in minimum of 60 seconds
+
+SELECT  TrajectId, 
+        CASE DATEDIFF(s, FirstEvent, LastEvent) 
+            WHEN 0 THEN SpeedLimit 
+            ELSE(CameraDistance/DATEDIFF(s, FirstEvent, LastEvent)*3.6) 
+        END AS Speed, 
+        LastEvent as detectiontime, SpeedLimit,  LicensePlate, DATEDIFF(s, FirstEvent, LastEvent) as Duration, Make, Color, Country, MinimumLane as Lane
+INTO    [speeding-events-hub]
+FROM    SpeedMeasurement
+
+SELECT  System.TimeStamp AS WindowTime, TrajectId, COUNT(*) as Cars, AVG((CameraDistance/DATEDIFF(s, FirstEvent, LastEvent)*3.6)) AS Speed
+INTO    [speeding-average]
+FROM    SpeedMeasurement
+GROUP   BY TrajectId, HoppingWindow(Duration(minute, 5), Hop(second, 15), Offset(millisecond, -1)) 
+"
+                                                                                   }
+                                                                },
+                                             "outputs":  [
+                                                             {
+                                                                 "type":  "Microsoft.StreamAnalytics/streamingjobs/outputs",
+                                                                 "name":  "[variables('asa_output_speeding_average')]",
+                                                                 "apiVersion":  "2016-03-01",
+                                                                 "scale":  null,
+                                                                 "properties":  {
+                                                                                    "datasource":  {
+                                                                                                       "type":  "Microsoft.ServiceBus/EventHub",
+                                                                                                       "properties":  {
+                                                                                                                          "eventHubName":  "[variables('event_hub_speed_events_name')]",
+                                                                                                                          "serviceBusNamespace":  "[variables('event_hub_namespace')]",
+                                                                                                                          "sharedAccessPolicyName":  "[variables('event_hub_authrule_root')]",
+                                                                                                                          "sharedAccessPolicyKey":  "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('event_hub_namespace'), variables('event_hub_authrule_root')),'2017-04-01').primaryKey]"
+                                                                                                                      }
+                                                                                                   },
+                                                                                    "serialization":  {
+                                                                                                          "type":  "Json",
+                                                                                                          "properties":  {
+                                                                                                                             "encoding":  "UTF8",
+                                                                                                                             "format":  "LineSeparated"
+                                                                                                                         }
+                                                                                                      }
+                                                                                },
+                                                                 "dependsOn":  [
+                                                                                   "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
+                                                                               ]
+                                                             },
+                                                             {
+                                                                 "type":  "Microsoft.StreamAnalytics/streamingjobs/outputs",
+                                                                 "name":  "[variables('asa_output_speeding_events_hub')]",
+                                                                 "apiVersion":  "2016-03-01",
+                                                                 "scale":  null,
+                                                                 "properties":  {
+                                                                                    "datasource":  {
+                                                                                                       "type":  "Microsoft.ServiceBus/EventHub",
+                                                                                                       "properties":  {
+                                                                                                                          "eventHubName":  "[variables('event_hub_speed_averages_name')]",
+                                                                                                                          "serviceBusNamespace":  "[variables('event_hub_namespace')]",
+                                                                                                                          "sharedAccessPolicyName":  "[variables('event_hub_authrule_root')]",
+                                                                                                                          "sharedAccessPolicyKey":  "[listkeys(resourceId('Microsoft.Eventhub/namespaces/authorizationRules',variables('event_hub_namespace'), variables('event_hub_authrule_root')),'2017-04-01').primaryKey]"
+                                                                                                                      }
+                                                                                                   },
+                                                                                    "serialization":  {
+                                                                                                          "type":  "Json",
+                                                                                                          "properties":  {
+                                                                                                                             "encoding":  "UTF8",
+                                                                                                                             "format":  "LineSeparated"
+                                                                                                                         }
+                                                                                                      }
+                                                                                },
+                                                                 "dependsOn":  [
+                                                                                   "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
+                                                                               ]
+                                                             },
+                                                             {
+                                                                 "type":  "Microsoft.StreamAnalytics/streamingjobs/outputs",
+                                                                 "name":  "[variables('asa_output_speeding_events')]",
+                                                                 "apiVersion":  "2016-03-01",
+                                                                 "scale":  null,
+                                                                 "properties":  {
+                                                                                    "datasource":  {
+                                                                                                       "type":  "Microsoft.AzureFunction",
+                                                                                                       "properties":  {
+                                                                                                                          "functionAppName":  "[variables('site_name')]",
+                                                                                                                          "functionName":  "[variables('function_trigger_name')]",
+                                                                                                                          "apiKey":  "[listsecrets(resourceId('Microsoft.Web/sites/functions', variables('site_name'), variables('function_trigger_name')),'2015-08-01').key]"
+                                                                                                                      }
+                                                                                                   }
+                                                                                },
+                                                                 "dependsOn":  [
+                                                                                   "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('asa_job_speeddetection_name'))]"
+                                                                               ]
+                                                             }
+                                                         ]
+                                         },
+                          "dependsOn":  [
+
+                                        ]
+                      }
+                  ]
 }

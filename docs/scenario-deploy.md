@@ -41,8 +41,18 @@ Connect-AzAccount
 
 Select-AzSubscription -SubscriptionName <yourSubscriptionName>
 
+$pathToJson = "cloud-template.json"
+$template = Get-Content $pathToJson -Raw | ConvertFrom-Json
+$query = Get-Content "..\..\..\src\cloud\StreamAnalyticsCloud\Script.asaql" -Raw | Out-String
+$template.resources[0].properties.transformation.properties.query = $query
+$templateContent = $template | ConvertTo-Json -Depth 10 | % { [System.Text.RegularExpressions.Regex]::Unescape($_) }
+$templateContent | set-content $pathToJson
+
 New-AzResourceGroupDeployment -Name TrafficDeployment -ResourceGroupName <yourResourceGroup> -TemplateFile .\deploy\arm\02-stream-analytics\cloud-template.json -solution_name trafficdemo
 ```
+
+__Important remark__
+Currently, there seems to be an issue when the ARM template is getting deployed to Azure.  The square brackets at the end of the name of tables or outputs seems to include a carriage return that you have to change manually in the query editor on the Azure portal.
 
  ## Deploy Azure Databricks artifacts
 

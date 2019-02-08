@@ -1,0 +1,68 @@
+﻿CREATE  TABLE [iot-speed-events]
+(
+    TrajectId           nvarchar(max),
+    CameraId            nvarchar(max),
+    EventTime           datetime,
+    Lane                bigint,
+    Country             nvarchar(max),
+    LicensePlate        nvarchar(max),
+    Make                nvarchar(max),
+    Color               nvarchar(max)
+)
+CREATE  TABLE [segment-configs]
+(
+    segmentId           nvarchar(max),
+    numberOfLanes       bigint,
+    speedLimit          bigint,
+    rushHours           nvarchar(max),
+    maxSpeed            bigint,
+    minSpeed            bigint,
+    averageCarsPerMinute bigint,
+    speedingPercentage  bigint,
+    cameraDistance      bigint
+)
+
+WITH SpeedMeasurement AS ( 
+    SELECT  SpeedEvents.TrajectId, SegmentConfigs.cameraDistance as CameraDistance,
+            SegmentConfigs.speedLimit as SpeedLimit, SpeedEvents.LicensePlate, 
+            SpeedEvents.Make, SpeedEvents.Color, SpeedEvents.Country, 
+            MIN(SpeedEvents.Lane) as MinimumLane, 
+            MAX(SpeedEvents.EventTime) as ExitTime,
+            MIN(CAST(SpeedEvents.EventTime as datetime)) as FirstEvent, 
+            MAX(CAST(SpeedEvents.EventTime as datetime)) as LastEvent, 
+            Count(*) as eventcount
+    FROM    [iot-speed-events] SpeedEvents TIMESTAMP BY EventTime
+    INNER   JOIN [segment-configs] SegmentConfigs ON SpeedEvents.TrajectId = SegmentConfigs.segmentId
+    GROUP   BY SpeedEvents.TrajectId, SegmentConfigs.cameraDistance, SegmentConfigs.speedLimit, SpeedEvents.LicensePlate, 
+            SpeedEvents.Make, SpeedEvents.Color, SpeedEvents.Country, SlidingWindow(minute, 20)
+    HAVING  COUNT(*) > 1 AND DATEDIFF(s, FirstEvent, LastEvent) > 1
+) 
+
+SELECT  TrajectId, 
+        CASE DATEDIFF(s, FirstEvent, LastEvent) 
+            WHEN 0 THEN SpeedLimit 
+            ELSE(CameraDistance/DATEDIFF(s, FirstEvent, LastEvent)*3.6) 
+        END AS Speed, 
+        LastEvent as detectiontime, SpeedLimit,  LicensePlate, DATEDIFF(s, FirstEvent, LastEvent) as Duration, Make, Color, Country, MinimumLane as Lane
+INTO    [speeding-events]
+FROM    SpeedMeasurement
+WHERE   DATEDIFF(s, FirstEvent, LastEvent) < 
+        CASE SpeedLimit
+            WHEN 0 THEN 0 
+            ELSE(CameraDistance/((SpeedLimit*1000)/3600))
+        END 
+        -- 2000m at 120k/h should result in minimum of 60 seconds
+
+SELECT  TrajectId, 
+        CASE DATEDIFF(s, FirstEvent, LastEvent) 
+            WHEN 0 THEN SpeedLimit 
+            ELSE(CameraDistance/DATEDIFF(s, FirstEvent, LastEvent)*3.6) 
+        END AS Speed, 
+        LastEvent as detectiontime, SpeedLimit,  LicensePlate, DATEDIFF(s, FirstEvent, LastEvent) as Duration, Make, Color, Country, MinimumLane as Lane
+INTO    [speeding-events-hub]
+FROM    SpeedMeasurement
+
+SELECT  System.TimeStamp AS WindowTime, TrajectId, COUNT(*) as Cars, AVG((CameraDistance/DATEDIFF(s, FirstEvent, LastEvent)*3.6)) AS Speed
+INTO    [speeding-average]
+FROM    SpeedMeasurement
+GROUP   BY TrajectId, HoppingWindow(Duration(minute, 5), Hop(second, 15), Offset(millisecond, -1)) 
