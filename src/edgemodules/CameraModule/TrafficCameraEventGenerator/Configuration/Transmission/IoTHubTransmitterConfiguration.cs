@@ -47,7 +47,10 @@ namespace TrafficCameraEventGenerator.Configuration.Transmission
                                     ?? await iotHubServiceClient.AddDeviceAsync(new Device(deviceId));
                     var deviceConnectionString =
                         $"HostName={GetIoTHubUri(iotHubOwnerConnectionString)};DeviceId={deviceId};SharedAccessKey={camDevice.Authentication.SymmetricKey.PrimaryKey}";
-                    ConfigurationCache.CacheValue("deviceConnectionString", deviceConnectionString);
+                    if (cameraId == CameraType.Camera1)
+                    {
+                        ConfigurationCache.CacheValue("deviceConnectionString", deviceConnectionString);
+                    }
                     return new IoTHubTransmitter(deviceConnectionString);
                 });
             }

@@ -33,16 +33,17 @@ namespace TrafficCameraEventGenerator
         public async Task Run(CancellationToken cancellationToken)
         {
             SimulatedClock.Init(_simulationSettings.TimeSimulationAccelerator);
+
+            var segmentId = _configurationReader.GetConfigValue<string>("SEGMENT_ID", true);
+            var startCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentId, CameraType.Camera1);
+            var endCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentId, CameraType.Camera2);
             var segmentConfiguration = await _configurator.GetConfiguration();
             if (segmentConfiguration == null)
             {
                 _logger.Error($"The segment configuration was not found and resulted to null");
                 return;
             }
-
             var segmentSituation = new TrafficSegmentSituation(_configurator, segmentConfiguration);
-            var startCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera1);
-            var endCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera2);
             var random = new Random();
             // Initialize transmitters
             try
