@@ -33,6 +33,8 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             });
         }
 
+        public event EventHandler<TrafficSegmentConfiguration> ConfigurationUpdated;
+
         private IEnumerable<TimePeriod> GetRushHours()
         {
             var rushHours = new List<TimePeriod>

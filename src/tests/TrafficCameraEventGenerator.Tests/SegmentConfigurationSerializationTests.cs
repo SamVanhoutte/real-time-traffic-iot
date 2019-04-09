@@ -24,7 +24,7 @@ namespace TrafficCamera.Tests
                 }";
 
             var segmentConfig = JsonConvert.DeserializeObject<TrafficSegmentConfiguration>(jsonValue);
-            var config = new TrafficSegmentSituation(segmentConfig);
+            var config = new TrafficSegmentSituation(null, segmentConfig);
             Assert.NotNull(config);
             Assert.Equal(2, config.RushHours.Count());
             TimePeriod currentRushHour;

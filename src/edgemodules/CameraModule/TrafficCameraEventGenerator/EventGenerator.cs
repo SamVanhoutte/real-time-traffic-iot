@@ -40,7 +40,7 @@ namespace TrafficCameraEventGenerator
                 return;
             }
 
-            var segmentSituation = new TrafficSegmentSituation(segmentConfiguration);
+            var segmentSituation = new TrafficSegmentSituation(_configurator, segmentConfiguration);
             var startCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera1);
             var endCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera2);
             var random = new Random();

@@ -45,7 +45,7 @@ namespace TrafficCameraEventGenerator.Transmitters
         {
             try
             {
-                _logger.Debug($"Transmitting message in IoT Edge module to output {_outputName}");
+                _logger.Trace($"{cameraEvent.Car.Color} {cameraEvent.Car.Make} with license plate {cameraEvent.Car.LicensePlate} sending to IoT Edge output {_outputName}");
                 var policy = Policy
                     .Handle<TimeoutException>()
                     .Or<DeviceMessageLockLostException>()
