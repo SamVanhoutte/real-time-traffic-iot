@@ -43,6 +43,12 @@ namespace TrafficCameraEventGenerator
                 _logger.Error($"The segment configuration was not found and resulted to null");
                 return;
             }
+
+            if (string.IsNullOrEmpty(segmentConfiguration.SegmentId))
+            {
+                segmentConfiguration.SegmentId = segmentId;
+            }
+
             var segmentSituation = new TrafficSegmentSituation(_configurator, segmentConfiguration);
             var random = new Random();
             // Initialize transmitters
@@ -90,7 +96,7 @@ namespace TrafficCameraEventGenerator
                         Car = car,
                         Lane = LaneCalculator.CalculateLane(trafficConfiguration, segmentSituation, car)
                     }, cancellationToken);
-                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 01");
+                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 01 (limit {segmentSituation.SpeedLimit})");
                 await Task.Delay(carTimespan, cancellationToken);
                 await endCameraEventTransmitter.Transmit(
                     new CameraEvent
@@ -101,7 +107,7 @@ namespace TrafficCameraEventGenerator
                         Car = car,
                         Lane = LaneCalculator.CalculateLane(trafficConfiguration, segmentSituation, car)
                     }, cancellationToken);
-                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 02");
+                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 02 (limit {segmentSituation.SpeedLimit})");
             }
             catch (TaskCanceledException)
             {

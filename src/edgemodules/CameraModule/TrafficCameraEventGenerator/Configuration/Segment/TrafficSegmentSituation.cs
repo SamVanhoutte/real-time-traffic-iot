@@ -7,7 +7,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
 {
     public class TrafficSegmentSituation
     {
-        private readonly TrafficSegmentConfiguration _configuration;
+        private TrafficSegmentConfiguration _configuration;
         private DateTime _currentEventStartTime;
         private TimeSpan _eventLength;
         private EventType _currentEvent = EventType.None;
@@ -20,10 +20,18 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             _configurator = configurator;
             _configuration = segmentConfiguration;
             UpdateSituation(segmentConfiguration);
+            configurator.ConfigurationUpdated += Configurator_ConfigurationUpdated;
+        }
+
+        private void Configurator_ConfigurationUpdated(object sender, TrafficSegmentConfiguration e)
+        {
+            UpdateSituation(e);
         }
 
         private void UpdateSituation(TrafficSegmentConfiguration configuration)
         {
+            _configuration = configuration;
+            ResetToNormal();
             MaxSpeed = configuration.MaxSpeed;
             MinSpeed = configuration.MinSpeed;
             AverageCarsPerMinute = configuration.AverageCarsPerMinute;
@@ -32,7 +40,6 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             RushHours = configuration.RushHours;
             _currentEvent = EventType.None;
             _currentTrend = TrafficTrend.None;
-            ResetToNormal();
         }
 
         public void Resimulate(Random random)
