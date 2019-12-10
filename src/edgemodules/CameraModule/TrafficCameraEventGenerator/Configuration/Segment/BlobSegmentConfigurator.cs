@@ -37,5 +37,6 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
                 c.SegmentId.Equals(segmentId, StringComparison.InvariantCultureIgnoreCase));
         }
 
+        public event EventHandler<TrafficSegmentConfiguration> ConfigurationUpdated;
     }
 }

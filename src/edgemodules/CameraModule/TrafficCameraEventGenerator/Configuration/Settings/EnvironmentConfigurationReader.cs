@@ -24,5 +24,10 @@ namespace TrafficCameraEventGenerator.Configuration.Settings
             }
 
         }
+
+        public void CacheValue<T>(string variableName, T value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

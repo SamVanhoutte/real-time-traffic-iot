@@ -32,6 +32,7 @@ namespace TrafficCameraEventGenerator.Transmitters
         {
             try
             {
+                _logger.Trace($"{cameraEvent.Car.Color} {cameraEvent.Car.Make} with license plate {cameraEvent.Car.LicensePlate} sending to IoT Hub");
                 var policy = Policy
                     .Handle<TimeoutException>()
                     .Or<DeviceMessageLockLostException>()

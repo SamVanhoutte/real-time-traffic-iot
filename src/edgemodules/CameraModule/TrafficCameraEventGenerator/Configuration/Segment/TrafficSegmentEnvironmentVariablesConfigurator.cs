@@ -33,13 +33,10 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             });
         }
 
+        public event EventHandler<TrafficSegmentConfiguration> ConfigurationUpdated;
+
         private IEnumerable<TimePeriod> GetRushHours()
         {
-            var rushHours = new List<TimePeriod>
-            {
-                new TimePeriod("07:00", "08:00", true),
-                new TimePeriod("17:00", "18:00", true)
-            };
             string rushHourConfiguration = _configurationReader.GetConfigValue<string>("SEGMENT_RUSH_HOURS", false, null);
             return TimePeriod.ParseList(rushHourConfiguration);
         }

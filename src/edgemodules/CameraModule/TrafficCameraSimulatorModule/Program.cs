@@ -56,7 +56,8 @@ namespace TrafficCameraService
             var serviceCollection = new ServiceCollection()
                 .AddLogging()
                 .AddSingleton<IConfigurationReader, EnvironmentConfigurationReader>()
-                .AddSingleton<ITrafficSegmentConfigurator, BlobSegmentConfigurator>()
+                //.AddSingleton<ITrafficSegmentConfigurator, BlobSegmentConfigurator>()
+                .AddSingleton<ITrafficSegmentConfigurator, TwinSegmentConfigurator>()
                 .AddSingleton<ITimeSimulationSettings, TimeSimulationSettings>()
                 .AddSingleton<IEventGenerator, EventGenerator>();
             if (IsEdgeEnvironment)
@@ -66,7 +67,7 @@ namespace TrafficCameraService
             }
             else
             {
-                _logger.Info($"This container is running in edge environment, creating iot hub transmitter");
+                _logger.Info($"This container is *not* running in edge environment, creating iot hub transmitter");
                 serviceCollection.AddSingleton<ICameraTransmitterConfigurator, IoTHubTransmitterConfigurator>();
             }
 

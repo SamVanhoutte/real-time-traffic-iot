@@ -7,23 +7,40 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
 {
     public class TrafficSegmentSituation
     {
-        private readonly TrafficSegmentConfiguration _configuration;
+        private TrafficSegmentConfiguration _configuration;
         private DateTime _currentEventStartTime;
         private TimeSpan _eventLength;
         private EventType _currentEvent = EventType.None;
         private TrafficTrend _currentTrend = TrafficTrend.None;
+        private ITrafficSegmentConfigurator _configurator;
 
-        public TrafficSegmentSituation(TrafficSegmentConfiguration configuration)
+        public TrafficSegmentSituation(ITrafficSegmentConfigurator configurator,
+            TrafficSegmentConfiguration segmentConfiguration)
+        {
+            _configurator = configurator;
+            _configuration = segmentConfiguration;
+            UpdateSituation(segmentConfiguration);
+            if(configurator!=null) configurator.ConfigurationUpdated += Configurator_ConfigurationUpdated;
+        }
+
+        private void Configurator_ConfigurationUpdated(object sender, TrafficSegmentConfiguration e)
+        {
+            UpdateSituation(e);
+        }
+
+        private void UpdateSituation(TrafficSegmentConfiguration configuration)
         {
             _configuration = configuration;
+            ResetToNormal();
             MaxSpeed = configuration.MaxSpeed;
             MinSpeed = configuration.MinSpeed;
             AverageCarsPerMinute = configuration.AverageCarsPerMinute;
             SpeedingPercentage = configuration.SpeedingPercentage;
             SpeedLimit = configuration.SpeedLimit;
             RushHours = configuration.RushHours;
+            _currentEvent = EventType.None;
+            _currentTrend = TrafficTrend.None;
         }
-
 
         public void Resimulate(Random random)
         {
@@ -31,15 +48,16 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             if (IsRushHour(SimulatedClock.Time, out var currentRushHour))
             {
                 AverageCarsPerMinute += random.Next(0, 10);
-                try{
+                try
+                {
                     var rushHourEvolution = (currentRushHour.TimeLeft(SimulatedClock.Time).TotalSeconds /
                                          currentRushHour.Duration.TotalSeconds);
                     _currentTrend = rushHourEvolution < 0.80 ? TrafficTrend.Congesting : TrafficTrend.Clearing;
                 }
-                catch(DivideByZeroException)
+                catch (DivideByZeroException)
                 {
                     _currentTrend = TrafficTrend.Clearing;
-                }   
+                }
                 // First 80% of the timeframe, rushhour congestion, then clearing
                 _currentEvent = EventType.RushHour;
             }
@@ -52,7 +70,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
                 }
             }
 
-            
+
             if (_currentEvent == EventType.None)
             {
                 // Apply random small changes
@@ -82,14 +100,15 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
                 // Apply random small changes
                 AverageCarsPerMinute += random.Next(-2, 3);
 
-                try{
+                try
+                {
                     var accidentEvolution = ((SimulatedClock.Time - _currentEventStartTime).TotalSeconds / _eventLength.TotalSeconds);
                     _currentTrend = accidentEvolution < 0.88 ? TrafficTrend.Congesting : TrafficTrend.Clearing;
                 }
-                catch(DivideByZeroException)
+                catch (DivideByZeroException)
                 {
                     _currentTrend = TrafficTrend.Clearing;
-                } 
+                }
                 _currentEvent = EventType.RushHour;
             }
 
@@ -134,7 +153,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             {
                 AverageSpeed = MaxSpeed - 2;
             }
-            if(AverageCarsPerMinute < 3)
+            if (AverageCarsPerMinute < 3)
             {
                 AverageCarsPerMinute = 3;
             }

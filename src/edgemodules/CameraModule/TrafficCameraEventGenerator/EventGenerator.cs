@@ -33,6 +33,10 @@ namespace TrafficCameraEventGenerator
         public async Task Run(CancellationToken cancellationToken)
         {
             SimulatedClock.Init(_simulationSettings.TimeSimulationAccelerator);
+
+            var segmentId = _configurationReader.GetConfigValue<string>("SEGMENT_ID", true);
+            var startCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentId, CameraType.Camera1);
+            var endCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentId, CameraType.Camera2);
             var segmentConfiguration = await _configurator.GetConfiguration();
             if (segmentConfiguration == null)
             {
@@ -40,9 +44,12 @@ namespace TrafficCameraEventGenerator
                 return;
             }
 
-            var segmentSituation = new TrafficSegmentSituation(segmentConfiguration);
-            var startCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera1);
-            var endCameraEventTransmitter = await _transmitterConfigurator.CreateTransmitter(segmentConfiguration.SegmentId, CameraType.Camera2);
+            if (string.IsNullOrEmpty(segmentConfiguration.SegmentId))
+            {
+                segmentConfiguration.SegmentId = segmentId;
+            }
+
+            var segmentSituation = new TrafficSegmentSituation(_configurator, segmentConfiguration);
             var random = new Random();
             // Initialize transmitters
             try
@@ -89,7 +96,7 @@ namespace TrafficCameraEventGenerator
                         Car = car,
                         Lane = LaneCalculator.CalculateLane(trafficConfiguration, segmentSituation, car)
                     }, cancellationToken);
-                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 01");
+                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 01 (limit {segmentSituation.SpeedLimit})");
                 await Task.Delay(carTimespan, cancellationToken);
                 await endCameraEventTransmitter.Transmit(
                     new CameraEvent
@@ -100,7 +107,7 @@ namespace TrafficCameraEventGenerator
                         Car = car,
                         Lane = LaneCalculator.CalculateLane(trafficConfiguration, segmentSituation, car)
                     }, cancellationToken);
-                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 02");
+                _logger.Trace($"{car.Color} {car.Make} with license plate {car.LicensePlate} detected by camera 02 (limit {segmentSituation.SpeedLimit})");
             }
             catch (TaskCanceledException)
             {
