@@ -20,7 +20,7 @@ namespace TrafficCameraEventGenerator.Configuration.Segment
             _configurator = configurator;
             _configuration = segmentConfiguration;
             UpdateSituation(segmentConfiguration);
-            configurator.ConfigurationUpdated += Configurator_ConfigurationUpdated;
+            if(configurator!=null) configurator.ConfigurationUpdated += Configurator_ConfigurationUpdated;
         }
 
         private void Configurator_ConfigurationUpdated(object sender, TrafficSegmentConfiguration e)
