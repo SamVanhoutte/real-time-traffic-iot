@@ -46,7 +46,7 @@ namespace TrafficCameraEventGenerator.Transmitters
                 // Retry maximum 5 times with exponential backoff for the above exceptions
                 await policy.ExecuteAsync(async (token) =>
                 {
-                    await IoTHubClient.SendEventAsync(new Message(Encoding.UTF8.GetBytes(cameraEvent.ToJson())), token);
+                    await IoTHubClient.SendEventAsync(IoTHubMessageFactory.CreateMessage(cameraEvent), token);
                 }, cancellationToken);
             }
             catch (Exception e)

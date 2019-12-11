@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Client.Transport.Mqtt;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TrafficDisplaySimulatorModule
 {
@@ -63,18 +64,18 @@ namespace TrafficDisplaySimulatorModule
             {
                 byte[] messageBytes = message.GetBytes();
                 string messageString = Encoding.UTF8.GetString(messageBytes);
-                foreach (var alert in messageString.Split("\r\n"))
+                var messageArray = JArray.Parse(messageString);
+                foreach (var alert in messageArray)
                 {
-                    dynamic outputMessage = JsonConvert.DeserializeObject(alert);
                     Console.WriteLine();
                     Console.WriteLine("####################---- WARNING ----#########################################");
-                    Console.WriteLine($"##########   {outputMessage.licenseplate} you are speeding!  a fine will be sent {DateTime.Now:HH:mm}  #########");
+                    Console.WriteLine($"##########   {alert["LicensePlate"]} you are speeding!  a fine will be sent {DateTime.Now:HH:mm}  #########");
                     Console.WriteLine("##############################################################################");
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //Console.WriteLine(e);
+                Console.WriteLine(e);
             }
             return Task.FromResult(MessageResponse.Completed);
 
