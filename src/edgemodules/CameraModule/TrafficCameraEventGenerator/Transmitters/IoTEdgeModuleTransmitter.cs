@@ -59,7 +59,7 @@ namespace TrafficCameraEventGenerator.Transmitters
                 // Retry maximum 5 times with exponential backoff for the above exceptions
                 await policy.ExecuteAsync(async (token) =>
                 {
-                    await EdgeModuleClient.SendEventAsync(_outputName, new Message(Encoding.UTF8.GetBytes(cameraEvent.ToJson())), token);
+                    await EdgeModuleClient.SendEventAsync(_outputName, IoTHubMessageFactory.CreateMessage(cameraEvent), token);
                 }, cancellationToken);
             }
             catch (Exception e)
