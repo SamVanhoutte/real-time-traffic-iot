@@ -1,0 +1,14 @@
+{
+  "put": [
+    {
+      "id": "7be7ee9d-147c-4c0b-a603-ea5d3c0a32d5",
+      "name": "Region",
+      "source": {
+        "instanceFieldNames": [
+          "Region",
+          "Province"
+        ]
+      }
+    }
+  ]
+}

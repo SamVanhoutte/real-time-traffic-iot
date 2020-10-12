@@ -1,0 +1,139 @@
+{
+  "put": [
+    {
+      "id": "1be09af9-f089-4d6b-9f0b-48018b5f7393",
+      "name": "Speed measurement",
+      "description": "Default type",
+      "variables": {
+        "EventCount": {
+          "kind": "aggregate",
+          "aggregation": {
+            "tsx": "count()"
+          }
+        },
+        "OverSpeed": {
+          "kind": "numeric",
+          "value": {
+            "tsx": "($event['speed'].Double - $event['speedlimit'].Double)"
+          },
+          "aggregation": {
+            "tsx": "avg($value)"
+          }
+        },
+        "MaxSpeed": {
+          "kind": "numeric",
+          "value": {
+            "tsx": "$event.speed.Double"
+          },
+          "aggregation": {
+            "tsx": "max($value)"
+          }
+        },
+        "Country": {
+          "kind": "categorical",
+          "value": {
+            "tsx": "$event.country.String"
+          },
+          "filter": {
+            "tsx": "($event.country.String) != null"
+          },
+          "interpolation": {
+            "kind": "step",
+            "boundary": {
+              "span": "PT5M"
+            }
+          },
+          "categories": [
+            {
+              "label": "Belgium",
+              "values": [
+                "BE"
+              ],
+              "annotations": {
+                "color": "#F7727E"
+              }
+            },
+            {
+              "label": "France",
+              "values": [
+                "FR"
+              ],
+              "annotations": {
+                "color": "#0078D7"
+              }
+            },
+            {
+              "label": "Germany",
+              "values": [
+                "DE"
+              ],
+              "annotations": {
+                "color": "#FFF100"
+              }
+            },
+            {
+              "label": "Hungary",
+              "values": [
+                "HU"
+              ],
+              "annotations": {
+                "color": "#8FE6D7"
+              }
+            },
+            {
+              "label": "Portugal",
+              "values": [
+                "PT"
+              ],
+              "annotations": {
+                "color": "rgb(56, 116, 52)"
+              }
+            },
+            {
+              "label": "Poland",
+              "values": [
+                "PL"
+              ],
+              "annotations": {
+                "color": "#FF2828"
+              }
+            },
+            {
+              "label": "Netherlands",
+              "values": [
+                "NL"
+              ],
+              "annotations": {
+                "color": "#854CC7"
+              }
+            }
+          ],
+          "defaultCategory": {
+            "label": "Unknown",
+            "annotations": {
+              "color": "rgb(23, 13, 34)"
+            }
+          }
+        },
+        "SpeedLimit": {
+          "kind": "numeric",
+          "value": {
+            "tsx": "$event.speedlimit.Long"
+          },
+          "aggregation": {
+            "tsx": "avg($value)"
+          }
+        },
+        "AverageSpeed": {
+          "kind": "numeric",
+          "value": {
+            "tsx": "$event.speed.Double"
+          },
+          "aggregation": {
+            "tsx": "avg($value)"
+          }
+        }
+      }
+    }
+  ]
+}
