@@ -1,0 +1,56 @@
+{
+  "put": [
+    {
+      "typeId": "1be09af9-f089-4d6b-9f0b-48018b5f7393",
+      "timeSeriesId": [
+        "01"
+      ],
+      "hierarchyIds": [
+        "7be7ee9d-147c-4c0b-a603-ea5d3c0a32d5"
+      ],
+      "instanceFields": {
+        "Region": "Flanders",
+        "Province": "East Flanders"
+      }
+    },
+    {
+      "typeId": "1be09af9-f089-4d6b-9f0b-48018b5f7393",
+      "timeSeriesId": [
+        "02"
+      ],
+      "hierarchyIds": [
+        "7be7ee9d-147c-4c0b-a603-ea5d3c0a32d5"
+      ],
+      "instanceFields": {
+        "Region": "Flanders",
+        "Province": "West Flanders"
+      }
+    },
+    {
+      "typeId": "1be09af9-f089-4d6b-9f0b-48018b5f7393",
+      "timeSeriesId": [
+        "03"
+      ],
+      "hierarchyIds": [
+        "7be7ee9d-147c-4c0b-a603-ea5d3c0a32d5"
+      ],
+      "instanceFields": {
+        "Region": "Wallonia",
+        "Province": "Luxemburg"
+      }
+    },
+    {
+      "typeId": "1be09af9-f089-4d6b-9f0b-48018b5f7393",
+      "timeSeriesId": [
+        "04"
+      ],
+      "hierarchyIds": [
+        "7be7ee9d-147c-4c0b-a603-ea5d3c0a32d5"
+      ],
+      "instanceFields": {
+        "Region": "Flanders",
+        "Province": "East Flanders"
+      }
+    }
+  ]
+}

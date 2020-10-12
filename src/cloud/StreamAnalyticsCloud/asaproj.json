@@ -1,0 +1,18 @@
+{
+    "name": "StreamAnalyticsCloud",
+    "startFile": "Script.asaql",
+    "configurations": [
+        {
+            "filePath": "Inputs\\iot-speed-events.json",
+            "subType": "Input"
+        },
+        {
+            "filePath": "Outputs\\Output.json",
+            "subType": "Output"
+        },
+        {
+            "filePath": "JobConfig.json",
+            "subType": "JobConfig"
+        }
+    ]
+}
